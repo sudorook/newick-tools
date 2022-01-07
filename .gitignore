@@ -1,6 +1,18 @@
 # Generated files and directries
 newick-tools
 relic/
+src/parse_ntree.h
+src/parse_rtree.h
+src/parse_utree.h
+src/parse_ntree.c
+src/parse_rtree.c
+src/parse_utree.c
+src/lex_ntree.h
+src/lex_rtree.h
+src/lex_utree.h
+src/lex_ntree.c
+src/lex_rtree.c
+src/lex_utree.c
 
 # Text editor backups
 *~
