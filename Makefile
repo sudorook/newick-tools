@@ -63,7 +63,13 @@ OBJS=$(SRCDIR)/arch.o \
      $(SRCDIR)/util.o \
      $(SRCDIR)/utree.o \
      $(SRCDIR)/utree_bf.o
-EXTRA=$(shell /bin/bash -c 'echo $(SRCDIR)/{parse,lex}_{r,n,u}tree.h')
+
+EXTRA=$(SRCDIR)/lex_ntree.h \
+      $(SRCDIR)/lex_rtree.h \
+      $(SRCDIR)/lex_utree.h \
+      $(SRCDIR)/parse_ntree.h \
+      $(SRCDIR)/parse_rtree.h \
+      $(SRCDIR)/parse_utree.h \
 
 $(PROG): $(OBJS)
 	$(CC) -Wall $(LINKFLAGS) $+ -o $@ $(LIBS)
