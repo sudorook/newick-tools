@@ -34,12 +34,36 @@ FLEX = flex
 
 PROG=newick-tools
 
+SRCDIR=src
+
 all: $(PROG)
 
-OBJS=util.o newick-tools.o parse_rtree.o parse_utree.o lex_rtree.o lex_utree.o \
-     arch.o rtree.o utree.o lca_tips.o lca_utree.o prune.o svg.o subtree.o \
-     parse_ntree.o lex_ntree.o ntree.o info.o utree_bf.o stats.o create.o dist.o \
-     bd.o labels.o attach.o
+OBJS=$(SRCDIR)/arch.o \
+     $(SRCDIR)/attach.o \
+     $(SRCDIR)/bd.o \
+     $(SRCDIR)/create.o \
+     $(SRCDIR)/dist.o \
+     $(SRCDIR)/info.o \
+     $(SRCDIR)/newick-tools.o \
+     $(SRCDIR)/ntree.o \
+     $(SRCDIR)/labels.o \
+     $(SRCDIR)/lca_utree.o \
+     $(SRCDIR)/lca_tips.o \
+     $(SRCDIR)/lex_ntree.o \
+     $(SRCDIR)/lex_rtree.o \
+     $(SRCDIR)/lex_utree.o \
+     $(SRCDIR)/parse_ntree.o \
+     $(SRCDIR)/parse_rtree.o \
+     $(SRCDIR)/parse_utree.o \
+     $(SRCDIR)/prune.o \
+     $(SRCDIR)/rtree.o \
+     $(SRCDIR)/subtree.o \
+     $(SRCDIR)/svg.o \
+     $(SRCDIR)/stats.o \
+     $(SRCDIR)/util.o \
+     $(SRCDIR)/utree.o \
+     $(SRCDIR)/utree_bf.o
+EXTRA=$(shell /bin/bash -c 'echo $(SRCDIR)/{parse,lex}_{r,n,u}tree.h')
 
 $(PROG): $(OBJS)
 	$(CC) -Wall $(LINKFLAGS) $+ -o $@ $(LIBS)
@@ -48,10 +72,13 @@ $(PROG): $(OBJS)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 parse_%.c: parse_%.y
-	$(BISON) -p $*_ -d -o $@ $<
+	$(BISON) -p $(patsubst $(SRCDIR)/%,%,$*)_ -d -o $@ $<
 
 %.c: %.l
 	$(FLEX) -o $@ $<
 
 clean:
-	rm -f *~ $(OBJS) gmon.out $(PROG) parse_rtree.c parse_utree.c parse_ntree.c lex_rtree.c lex_utree.c lex_ntree.c parse_rtree.h parse_utree.h parse_ntree.h
+	rm -f $(OBJS) 
+	rm -f gmon.out 
+	rm -f $(PROG) 
+	rm -f $(EXTRA)
