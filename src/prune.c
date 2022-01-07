@@ -21,29 +21,29 @@
 
 #include "newick-tools.h"
 
-static void prune_taxa(rtree_t ** root,
-                       rtree_t ** prune_tips_list,
-                       unsigned int prune_tips_count)
+static void
+prune_taxa(rtree_t** root,
+           rtree_t** prune_tips_list,
+           unsigned int prune_tips_count)
 {
   unsigned int i;
 
-  if (prune_tips_count > (*root)->leaves-2)
+  if (prune_tips_count > (*root)->leaves - 2)
     fatal("Error, the resulting tree must have at least 2 taxa.");
-    
-  for (i = 0; i < prune_tips_count; ++i)
-  {
-    rtree_t * parent = prune_tips_list[i]->parent;
-    rtree_t * grandparent = parent->parent;
 
-    if (!grandparent)
-    {
-      fprintf(stderr,
-            "Warning: All taxa from one root subtree deleted. Root changed.\n");
+  for (i = 0; i < prune_tips_count; ++i) {
+    rtree_t* parent = prune_tips_list[i]->parent;
+    rtree_t* grandparent = parent->parent;
+
+    if (!grandparent) {
+      fprintf(
+        stderr,
+        "Warning: All taxa from one root subtree deleted. Root changed.\n");
     }
-    
-    rtree_t * temp = (parent->left == prune_tips_list[i]) ?
-                           parent->right : parent->left;
-    
+
+    rtree_t* temp =
+      (parent->left == prune_tips_list[i]) ? parent->right : parent->left;
+
     if (prune_tips_list[i]->label)
       free(prune_tips_list[i]->label);
     free(prune_tips_list[i]);
@@ -51,21 +51,15 @@ static void prune_taxa(rtree_t ** root,
     if (parent->label)
       free(parent->label);
 
-    if (grandparent)
-    {
-      if (grandparent->left == parent)
-      {
+    if (grandparent) {
+      if (grandparent->left == parent) {
         grandparent->left = temp;
-      }
-      else
-      {
+      } else {
         grandparent->right = temp;
       }
       temp->length += parent->length;
       temp->parent = grandparent;
-    }
-    else
-    {
+    } else {
       temp->parent = NULL;
       /* the next line will zero-out the root branch (origin) */
       /* temp->length = 0; */
@@ -75,19 +69,18 @@ static void prune_taxa(rtree_t ** root,
   }
 }
 
-static utree_t * utree_prune_taxa(utree_t ** prune_tips_list,
-                                  unsigned int prune_tips_count)
+static utree_t*
+utree_prune_taxa(utree_t** prune_tips_list, unsigned int prune_tips_count)
 {
   unsigned int i;
   /* TODO: Check if we can remove that many tips */
-  utree_t * root = NULL;
+  utree_t* root = NULL;
 
-  for (i = 0; i < prune_tips_count; ++i)
-  {
-    utree_t * parent = prune_tips_list[i]->back;
-    
-    utree_t * x = parent->next->back;
-    utree_t * y = parent->next->next->back;
+  for (i = 0; i < prune_tips_count; ++i) {
+    utree_t* parent = prune_tips_list[i]->back;
+
+    utree_t* x = parent->next->back;
+    utree_t* y = parent->next->next->back;
 
     double len = x->length + y->length;
 
@@ -111,65 +104,62 @@ static utree_t * utree_prune_taxa(utree_t ** prune_tips_list,
 
   return root;
 }
-static utree_t ** utree_random_tiplist(utree_t * root, int tip_count)
+static utree_t**
+utree_random_tiplist(utree_t* root, int tip_count)
 {
-  utree_t ** node_list = (utree_t **)xmalloc(tip_count * sizeof(utree_t *));
+  utree_t** node_list = (utree_t**)xmalloc(tip_count * sizeof(utree_t*));
   utree_query_tipnodes(root, node_list);
-  shuffle((void *)node_list, tip_count, sizeof(utree_t *));
+  shuffle((void*)node_list, tip_count, sizeof(utree_t*));
   return node_list;
 }
 
-static rtree_t ** rtree_random_tiplist(rtree_t * root)
+static rtree_t**
+rtree_random_tiplist(rtree_t* root)
 {
-  rtree_t ** node_list = (rtree_t **)xmalloc(root->leaves * sizeof(rtree_t *));
+  rtree_t** node_list = (rtree_t**)xmalloc(root->leaves * sizeof(rtree_t*));
   rtree_query_tipnodes(root, node_list);
-  shuffle((void *)node_list, root->leaves, sizeof(rtree_t *));
+  shuffle((void*)node_list, root->leaves, sizeof(rtree_t*));
   return node_list;
 }
-                        
-void cmd_prune_tips()
+
+void
+cmd_prune_tips()
 {
-  FILE * out;
+  FILE* out;
   unsigned int prune_tips_count;
-  char * newick;
+  char* newick;
 
   /* attempt to open output file */
-  out = opt_outfile ?
-          xopen(opt_outfile,"w") : stdout;
+  out = opt_outfile ? xopen(opt_outfile, "w") : stdout;
 
   /* parse tree */
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
-  if (!rtree)
-  {
+  if (!rtree) {
     int tip_count;
-    utree_t * utree = utree_parse_newick(opt_treefile, &tip_count);
+    utree_t* utree = utree_parse_newick(opt_treefile, &tip_count);
     if (!utree)
       fatal("Tree is neither unrooted nor rooted. Go fix your tree.");
 
     if (!opt_quiet)
       fprintf(stdout, "Loaded unrooted tree...\n");
 
-    utree_t ** prune_tips_list;
+    utree_t** prune_tips_list;
 
-    if (opt_prune_random)
-    {
+    if (opt_prune_random) {
       prune_tips_list = utree_random_tiplist(utree, tip_count);
       prune_tips_count = opt_prune_random;
-    }
-    else
-      prune_tips_list = utree_tipstring_nodes(utree,
-                                              tip_count,
-                                              opt_prune_tips,
-                                              &prune_tips_count);
-      
-    if (prune_tips_count+3 > (unsigned int)tip_count)
+    } else
+      prune_tips_list = utree_tipstring_nodes(
+        utree, tip_count, opt_prune_tips, &prune_tips_count);
+
+    if (prune_tips_count + 3 > (unsigned int)tip_count)
       fatal("Error, the resulting tree must have at least 3 taxa.");
 
-    utree_t * uroot = utree_prune_taxa(prune_tips_list, prune_tips_count);
+    utree_t* uroot = utree_prune_taxa(prune_tips_list, prune_tips_count);
     free(prune_tips_list);
 
     /* export tree structure to newick string */
@@ -177,20 +167,15 @@ void cmd_prune_tips()
 
     /* deallocate tree structure */
     utree_destroy(uroot);
-  }
-  else
-  {
-    rtree_t ** prune_tips_list;
-   
-    if (opt_prune_random)
-    {
+  } else {
+    rtree_t** prune_tips_list;
+
+    if (opt_prune_random) {
       prune_tips_list = rtree_random_tiplist(rtree);
       prune_tips_count = opt_prune_random;
-    }
-    else
-      prune_tips_list = rtree_tipstring_nodes(rtree,
-                                              opt_prune_tips,
-                                              &prune_tips_count);
+    } else
+      prune_tips_list =
+        rtree_tipstring_nodes(rtree, opt_prune_tips, &prune_tips_count);
 
     prune_taxa(&rtree, prune_tips_list, prune_tips_count);
     free(prune_tips_list);
@@ -204,8 +189,6 @@ void cmd_prune_tips()
     rtree_destroy(rtree);
   }
 
-
-
   fprintf(out, "%s\n", newick);
 
   if (opt_outfile)
@@ -217,37 +200,35 @@ void cmd_prune_tips()
     fprintf(stdout, "Done...\n");
 }
 
-void cmd_induce_tree()
+void
+cmd_induce_tree()
 {
-  FILE * out;
-  rtree_t ** complement_tiplist;
-  rtree_t ** prune_tiplist;
+  FILE* out;
+  rtree_t** complement_tiplist;
+  rtree_t** prune_tiplist;
   unsigned int complement_tips_count = 0;
 
   /* attempt to open output file */
-  out = opt_outfile ?
-          xopen(opt_outfile,"w") : stdout;
+  out = opt_outfile ? xopen(opt_outfile, "w") : stdout;
 
   /* parse tree */
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
-  complement_tiplist = rtree_tipstring_nodes(rtree,
-                                           opt_induce_subtree,
-                                           &complement_tips_count);
+  complement_tiplist =
+    rtree_tipstring_nodes(rtree, opt_induce_subtree, &complement_tips_count);
 
-  prune_tiplist = rtree_tiplist_complement(rtree,
-                                           complement_tiplist,
-                                           complement_tips_count);
+  prune_tiplist =
+    rtree_tiplist_complement(rtree, complement_tiplist, complement_tips_count);
   free(complement_tiplist);
 
   prune_taxa(&rtree, prune_tiplist, rtree->leaves - complement_tips_count);
   free(prune_tiplist);
-   
+
   rtree_reset_leaves(rtree);
-  char * newick = rtree_export_newick(rtree);
+  char* newick = rtree_export_newick(rtree);
 
   fprintf(out, "%s\n", newick);
 

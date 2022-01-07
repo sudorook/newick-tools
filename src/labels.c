@@ -21,18 +21,19 @@
 
 #include "newick-tools.h"
 
-char ** parse_labels(const char * filename, int * count)
+char**
+parse_labels(const char* filename, int* count)
 {
-  FILE * fp;
+  FILE* fp;
   const size_t alloc_step = 100;
   size_t alloc_max = 100;
   unsigned int tip_count = 0;
 
   char line[4096];
 
-  char ** tip_list;
+  char** tip_list;
 
-  tip_list = (char **)xmalloc(alloc_max*sizeof(char*));
+  tip_list = (char**)xmalloc(alloc_max * sizeof(char*));
 
   fp = fopen(filename, "r");
   if (!fp)
@@ -41,29 +42,27 @@ char ** parse_labels(const char * filename, int * count)
   if (!opt_quiet)
     fprintf(stdout, "Reading list of labels\n");
 
-  while (fgets(line,1024,fp))
-  {
-    if (alloc_max == tip_count)
-    {
+  while (fgets(line, 1024, fp)) {
+    if (alloc_max == tip_count) {
       alloc_max += alloc_step;
-      char ** temp = (char **)xmalloc(alloc_max*sizeof(char*));
-      memcpy(temp,tip_list, tip_count*sizeof(char *));
+      char** temp = (char**)xmalloc(alloc_max * sizeof(char*));
+      memcpy(temp, tip_list, tip_count * sizeof(char*));
       free(tip_list);
-      tip_list=temp;
+      tip_list = temp;
     }
 
     long len;
-    if (strchr(line,'\r'))
-      len = xstrchrnul(line,'\r') - line;
+    if (strchr(line, '\r'))
+      len = xstrchrnul(line, '\r') - line;
     else
-      len = xstrchrnul(line,'\n') - line;
+      len = xstrchrnul(line, '\n') - line;
 
     line[len] = 0;
 
     tip_list[tip_count] = xstrdup(line);
 
     if (!opt_quiet)
-      printf("%d: %s\n", tip_count+1, line);
+      printf("%d: %s\n", tip_count + 1, line);
     ++tip_count;
   }
   if (!opt_quiet)

@@ -21,9 +21,10 @@
 
 #include "newick-tools.h"
 
-double rnd_uniform(double min, double max)
+double
+rnd_uniform(double min, double max)
 {
   double r = ((double)random()) / RAND_MAX;
 
-  return min + (max - min)*r;
+  return min + (max - min) * r;
 }

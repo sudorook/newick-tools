@@ -23,26 +23,28 @@
 
 static int indend_space = 4;
 
-static void print_node_info(FILE * stream, rtree_t * tree)
+static void
+print_node_info(FILE* stream, rtree_t* tree)
 {
-  fprintf(stream," %s", tree->label);
-  fprintf(stream," %.*f", opt_precision, tree->length);
-  fprintf(stream,"\n");
+  fprintf(stream, " %s", tree->label);
+  fprintf(stream, " %.*f", opt_precision, tree->length);
+  fprintf(stream, "\n");
 }
 
-double rtree_longest_path(rtree_t * root)
+double
+rtree_longest_path(rtree_t* root)
 {
   int i;
   int count;
   int tip_count = root->leaves;
   double maxlength = 0;
 
-  rtree_t ** tips = (rtree_t **)xmalloc(tip_count*sizeof(rtree_t *));
+  rtree_t** tips = (rtree_t**)xmalloc(tip_count * sizeof(rtree_t*));
 
   /* unnecessarily expensive computation, but very simple to write.
 
      Improvement: Pre-compute the height for each node as:
-       
+
        max(left->height + left->length,right->height + right->length)
 
      by setting height at tips to 0. Then the answer is:
@@ -50,17 +52,16 @@ double rtree_longest_path(rtree_t * root)
      root->height + root->legth */
 
   count = rtree_query_tipnodes(root, tips);
-  for (i = 0; i < count; ++i)
-  {
+  for (i = 0; i < count; ++i) {
     maxlength = 0;
     double length = 0;
-    rtree_t * node = tips[i];
-    while (node)
-    {
+    rtree_t* node = tips[i];
+    while (node) {
       length += node->length;
       node = node->parent;
     }
-    if (length > maxlength) maxlength = length;
+    if (length > maxlength)
+      maxlength = length;
   }
 
   free(tips);
@@ -68,106 +69,105 @@ double rtree_longest_path(rtree_t * root)
   return maxlength;
 }
 
-static void print_tree_recurse(FILE * stream,
-                               rtree_t * tree, 
-                               int indend_level, 
-                               int * active_node_order)
+static void
+print_tree_recurse(FILE* stream,
+                   rtree_t* tree,
+                   int indend_level,
+                   int* active_node_order)
 {
-  int i,j;
+  int i, j;
 
-  if (!tree) return;
+  if (!tree)
+    return;
 
-  for (i = 0; i < indend_level; ++i)
-  {
+  for (i = 0; i < indend_level; ++i) {
     if (active_node_order[i])
-      fprintf(stream,"|");
+      fprintf(stream, "|");
     else
-      fprintf(stream," ");
+      fprintf(stream, " ");
 
-    for (j = 0; j < indend_space-1; ++j)
-      fprintf(stream," ");
+    for (j = 0; j < indend_space - 1; ++j)
+      fprintf(stream, " ");
   }
-  fprintf(stream,"\n");
+  fprintf(stream, "\n");
 
-  for (i = 0; i < indend_level-1; ++i)
-  {
+  for (i = 0; i < indend_level - 1; ++i) {
     if (active_node_order[i])
-      fprintf(stream,"|");
+      fprintf(stream, "|");
     else
-      fprintf(stream," ");
+      fprintf(stream, " ");
 
-    for (j = 0; j < indend_space-1; ++j)
-      fprintf(stream," ");
+    for (j = 0; j < indend_space - 1; ++j)
+      fprintf(stream, " ");
   }
 
-  fprintf(stream,"+");
-  for (j = 0; j < indend_space-1; ++j)
-    fprintf (stream,"-");
+  fprintf(stream, "+");
+  for (j = 0; j < indend_space - 1; ++j)
+    fprintf(stream, "-");
   if (tree->left || tree->right)
-    fprintf(stream,"+");
+    fprintf(stream, "+");
 
-  print_node_info(stream,tree);
+  print_node_info(stream, tree);
 
-  if (active_node_order[indend_level-1] == 2) 
-    active_node_order[indend_level-1] = 0;
+  if (active_node_order[indend_level - 1] == 2)
+    active_node_order[indend_level - 1] = 0;
 
   active_node_order[indend_level] = 1;
-  print_tree_recurse(stream,
-                     tree->left,
-                     indend_level+1,
-                     active_node_order);
+  print_tree_recurse(stream, tree->left, indend_level + 1, active_node_order);
   active_node_order[indend_level] = 2;
-  print_tree_recurse(stream,
-                     tree->right,
-                     indend_level+1,
-                     active_node_order);
-
+  print_tree_recurse(stream, tree->right, indend_level + 1, active_node_order);
 }
 
-static int tree_indend_level(rtree_t * tree, int indend)
+static int
+tree_indend_level(rtree_t* tree, int indend)
 {
-  if (!tree) return indend;
+  if (!tree)
+    return indend;
 
-  int a = tree_indend_level(tree->left,  indend+1);
-  int b = tree_indend_level(tree->right, indend+1);
+  int a = tree_indend_level(tree->left, indend + 1);
+  int b = tree_indend_level(tree->right, indend + 1);
 
   return (a > b ? a : b);
 }
 
-void rtree_show_ascii(FILE * stream, rtree_t * tree)
+void
+rtree_show_ascii(FILE* stream, rtree_t* tree)
 {
-  
-  int indend_max = tree_indend_level(tree,0);
 
-  int * active_node_order = (int *)xmalloc((indend_max+1) * sizeof(int));
+  int indend_max = tree_indend_level(tree, 0);
+
+  int* active_node_order = (int*)xmalloc((indend_max + 1) * sizeof(int));
   active_node_order[0] = 1;
   active_node_order[1] = 1;
 
-  print_node_info(stream,tree);
-  print_tree_recurse(stream, tree->left,  1, active_node_order);
+  print_node_info(stream, tree);
+  print_tree_recurse(stream, tree->left, 1, active_node_order);
   active_node_order[0] = 2;
   print_tree_recurse(stream, tree->right, 1, active_node_order);
   free(active_node_order);
 }
 
-static char * rtree_export_newick_recursive(rtree_t * root)
+static char*
+rtree_export_newick_recursive(rtree_t* root)
 {
-  char * newick;
+  char* newick;
 
-  if (!root) return NULL;
+  if (!root)
+    return NULL;
 
   if (!(root->left) || !(root->right))
     asprintf(&newick, "%s:%.*f", root->label, opt_precision, root->length);
-  else
-  {
-    char * subtree1 = rtree_export_newick_recursive(root->left);
-    char * subtree2 = rtree_export_newick_recursive(root->right);
+  else {
+    char* subtree1 = rtree_export_newick_recursive(root->left);
+    char* subtree2 = rtree_export_newick_recursive(root->right);
 
-    asprintf(&newick, "(%s,%s)%s:%.*f", subtree1,
-                                        subtree2,
-                                        root->label ? root->label : "",
-                                        opt_precision,
-                                        root->length);
+    asprintf(&newick,
+             "(%s,%s)%s:%.*f",
+             subtree1,
+             subtree2,
+             root->label ? root->label : "",
+             opt_precision,
+             root->length);
     free(subtree1);
     free(subtree2);
   }
@@ -175,24 +175,27 @@ static char * rtree_export_newick_recursive(rtree_t * root)
   return newick;
 }
 
-char * rtree_export_newick(rtree_t * root)
+char*
+rtree_export_newick(rtree_t* root)
 {
-  char * newick;
+  char* newick;
 
-  if (!root) return NULL;
+  if (!root)
+    return NULL;
 
   if (!(root->left) || !(root->right))
     asprintf(&newick, "%s:%.*f", root->label, opt_precision, root->length);
-  else
-  {
-    char * subtree1 = rtree_export_newick_recursive(root->left);
-    char * subtree2 = rtree_export_newick_recursive(root->right);
+  else {
+    char* subtree1 = rtree_export_newick_recursive(root->left);
+    char* subtree2 = rtree_export_newick_recursive(root->right);
 
-    asprintf(&newick, "(%s,%s)%s:%.*f;", subtree1,
-                                         subtree2,
-                                         root->label ? root->label : "",
-                                         opt_precision,
-                                         root->length);
+    asprintf(&newick,
+             "(%s,%s)%s:%.*f;",
+             subtree1,
+             subtree2,
+             root->label ? root->label : "",
+             opt_precision,
+             root->length);
     free(subtree1);
     free(subtree2);
   }
@@ -200,15 +203,14 @@ char * rtree_export_newick(rtree_t * root)
   return newick;
 }
 
-static void rtree_traverse_recursive(rtree_t * node,
-                                     int (*cbtrav)(rtree_t *),
-                                     int * index,
-                                     rtree_t ** outbuffer)
+static void
+rtree_traverse_recursive(rtree_t* node,
+                         int (*cbtrav)(rtree_t*),
+                         int* index,
+                         rtree_t** outbuffer)
 {
-  if (!node->left)
-  {
-    if (cbtrav(node))
-    {
+  if (!node->left) {
+    if (cbtrav(node)) {
       outbuffer[*index] = node;
       *index = *index + 1;
     }
@@ -223,16 +225,16 @@ static void rtree_traverse_recursive(rtree_t * node,
   *index = *index + 1;
 }
 
-int rtree_traverse(rtree_t * root,
-                   int (*cbtrav)(rtree_t *),
-                   rtree_t ** outbuffer)
+int
+rtree_traverse(rtree_t* root, int (*cbtrav)(rtree_t*), rtree_t** outbuffer)
 {
   int index = 0;
 
-  if (!root->left) return -1;
+  if (!root->left)
+    return -1;
 
   /* we will traverse an unrooted tree in the following way
-      
+
            root
             /\
            /  \
@@ -245,63 +247,65 @@ int rtree_traverse(rtree_t * root,
   return index;
 }
 
-static void rtree_traverse_postorder_recursive(rtree_t * node,
-                                               int (*cbtrav)(rtree_t *),
-                                               int * index,
-                                               rtree_t ** outbuffer)
+static void
+rtree_traverse_postorder_recursive(rtree_t* node,
+                                   int (*cbtrav)(rtree_t*),
+                                   int* index,
+                                   rtree_t** outbuffer)
 {
-  if (!node) return;
+  if (!node)
+    return;
 
-  rtree_traverse_postorder_recursive(node->left,  cbtrav, index, outbuffer);
+  rtree_traverse_postorder_recursive(node->left, cbtrav, index, outbuffer);
   rtree_traverse_postorder_recursive(node->right, cbtrav, index, outbuffer);
 
-  if (cbtrav(node))
-  {
+  if (cbtrav(node)) {
     outbuffer[*index] = node;
     *index = *index + 1;
   }
 }
 
-static int cb_rtree_all(rtree_t * node)
+static int
+cb_rtree_all(rtree_t* node)
 {
   return 1;
 }
 
-int rtree_query_branch_lengths(rtree_t * root, double * outbuffer)
+int
+rtree_query_branch_lengths(rtree_t* root, double* outbuffer)
 {
   int i;
   int count;
 
-  rtree_t ** buffer = (rtree_t **)xmalloc((2*root->leaves-1)*sizeof(rtree_t *));
+  rtree_t** buffer =
+    (rtree_t**)xmalloc((2 * root->leaves - 1) * sizeof(rtree_t*));
 
   count = rtree_traverse(root, cb_rtree_all, buffer);
 
   if (count == -1)
     fatal("Error while processing tree");
 
-  for (i=0; i<count-1; ++i)
-  {
-    outbuffer[i] = buffer[i]->length; 
+  for (i = 0; i < count - 1; ++i) {
+    outbuffer[i] = buffer[i]->length;
   }
 
   free(buffer);
 
-  return count-1;
-
+  return count - 1;
 }
-                                    
 
-
-int rtree_traverse_postorder(rtree_t * root,
-                             int (*cbtrav)(rtree_t *),
-                             rtree_t ** outbuffer)
+int
+rtree_traverse_postorder(rtree_t* root,
+                         int (*cbtrav)(rtree_t*),
+                         rtree_t** outbuffer)
 {
   int index = 0;
 
-  if (!root->left) return -1;
+  if (!root->left)
+    return -1;
 
   /* we will traverse an unrooted tree in the following way
-      
+
            root
             /\
            /  \
@@ -311,19 +315,19 @@ int rtree_traverse_postorder(rtree_t * root,
      place the node in the list */
 
   rtree_traverse_postorder_recursive(root, cbtrav, &index, outbuffer);
-  if (cbtrav(root))
-  {
+  if (cbtrav(root)) {
     outbuffer[index] = root;
     index = index + 1;
   }
   return index;
 }
 
-void rtree_traverse_sorted(rtree_t * root, rtree_t ** node_list, int * index)
+void
+rtree_traverse_sorted(rtree_t* root, rtree_t** node_list, int* index)
 {
-  if (!root) return;
-  if (!root->left)
-  {
+  if (!root)
+    return;
+  if (!root->left) {
     node_list[(*index)++] = root;
     return;
   }
@@ -339,105 +343,96 @@ void rtree_traverse_sorted(rtree_t * root, rtree_t ** node_list, int * index)
   int swap = 0;
 
   /* check whether to swap subtrees based on subtree size */
-  if (right_len < left_len)
-  {
+  if (right_len < left_len) {
     swap = 1;
-  }
-  else if (right_len == left_len)
-  {
+  } else if (right_len == left_len) {
     int i;
 
-    for (i = 0; i < left_len; ++i)
-    {
-      rtree_t * left_node = node_list[left_start+i];
-      rtree_t * right_node = node_list[right_start+i];
+    for (i = 0; i < left_len; ++i) {
+      rtree_t* left_node = node_list[left_start + i];
+      rtree_t* right_node = node_list[right_start + i];
 
       /* check whether to swap subtrees based on first tip occurrence */
-      if (left_node->left == NULL && right_node->left != NULL)
-      {
+      if (left_node->left == NULL && right_node->left != NULL) {
         swap = 0;
         break;
-      }
-      else if (left_node->left != NULL && right_node->left == NULL)
-      {
+      } else if (left_node->left != NULL && right_node->left == NULL) {
         swap = 1;
         break;
       }
 
       /* check whether to swap based on smaller label */
       int cmp = strcmp(left_node->label, right_node->label);
-      if (cmp < 0)
-      {
+      if (cmp < 0) {
         swap = 0;
         break;
-      }
-      else if (cmp > 0)
-      {
+      } else if (cmp > 0) {
         swap = 1;
         break;
       }
     }
-
   }
 
-  if (swap)
-  {
+  if (swap) {
     /* swap the two trees */
-    rtree_t ** temp = (rtree_t **)xmalloc(left_len * sizeof(rtree_t *));
-    memcpy(temp, node_list+left_start, left_len * sizeof(rtree_t *));
-    memcpy(node_list+left_start, node_list+right_start, right_len * sizeof(rtree_t *));
-    memcpy(node_list+left_start+right_len, temp, left_len * sizeof(rtree_t *));
+    rtree_t** temp = (rtree_t**)xmalloc(left_len * sizeof(rtree_t*));
+    memcpy(temp, node_list + left_start, left_len * sizeof(rtree_t*));
+    memcpy(node_list + left_start,
+           node_list + right_start,
+           right_len * sizeof(rtree_t*));
+    memcpy(
+      node_list + left_start + right_len, temp, left_len * sizeof(rtree_t*));
     free(temp);
   }
 
   node_list[(*index)++] = root;
 }
 
-static void rtree_query_tipnodes_recursive(rtree_t * node,
-                                           rtree_t ** node_list,
-                                           int * index)
+static void
+rtree_query_tipnodes_recursive(rtree_t* node, rtree_t** node_list, int* index)
 {
-  if (!node) return;
+  if (!node)
+    return;
 
-  if (!node->left)
-  {
+  if (!node->left) {
     node_list[*index] = node;
     *index = *index + 1;
     return;
   }
 
-  rtree_query_tipnodes_recursive(node->left,  node_list, index);
+  rtree_query_tipnodes_recursive(node->left, node_list, index);
   rtree_query_tipnodes_recursive(node->right, node_list, index);
 }
 
-int rtree_query_tipnodes(rtree_t * root,
-                         rtree_t ** node_list)
+int
+rtree_query_tipnodes(rtree_t* root, rtree_t** node_list)
 {
   int index = 0;
 
-  if (!root) return 0;
-  if (!root->left)
-  {
+  if (!root)
+    return 0;
+  if (!root->left) {
     node_list[index++] = root;
     return index;
   }
 
-  rtree_query_tipnodes_recursive(root->left,  node_list, &index);
+  rtree_query_tipnodes_recursive(root->left, node_list, &index);
   rtree_query_tipnodes_recursive(root->right, node_list, &index);
 
   return index;
 }
 
-static void rtree_query_innernodes_recursive(rtree_t * root,
-                                             rtree_t ** node_list,
-                                             int * index)
+static void
+rtree_query_innernodes_recursive(rtree_t* root, rtree_t** node_list, int* index)
 {
-  if (!root) return;
-  if (!root->left) return;
+  if (!root)
+    return;
+  if (!root->left)
+    return;
 
   /* postorder traversal */
 
-  rtree_query_innernodes_recursive(root->left,  node_list, index);
+  rtree_query_innernodes_recursive(root->left, node_list, index);
   rtree_query_innernodes_recursive(root->right, node_list, index);
 
   node_list[*index] = root;
@@ -445,15 +440,17 @@ static void rtree_query_innernodes_recursive(rtree_t * root,
   return;
 }
 
-int rtree_query_innernodes(rtree_t * root,
-                           rtree_t ** node_list)
+int
+rtree_query_innernodes(rtree_t* root, rtree_t** node_list)
 {
   int index = 0;
 
-  if (!root) return 0;
-  if (!root->left) return 0;
+  if (!root)
+    return 0;
+  if (!root->left)
+    return 0;
 
-  rtree_query_innernodes_recursive(root->left,  node_list, &index);
+  rtree_query_innernodes_recursive(root->left, node_list, &index);
   rtree_query_innernodes_recursive(root->right, node_list, &index);
 
   node_list[index++] = root;
@@ -461,57 +458,58 @@ int rtree_query_innernodes(rtree_t * root,
   return index;
 }
 
-void rtree_reset_leaves(rtree_t * root)
+void
+rtree_reset_leaves(rtree_t* root)
 {
-  if (!root->left)
-  {
+  if (!root->left) {
     root->leaves = 1;
     return;
   }
-  
+
   rtree_reset_leaves(root->left);
   rtree_reset_leaves(root->right);
 
   root->leaves = root->left->leaves + root->right->leaves;
 }
 
-rtree_t ** rtree_tipstring_nodes(rtree_t * root, char * tipstring, unsigned int * tiplist_count)
+rtree_t**
+rtree_tipstring_nodes(rtree_t* root,
+                      char* tipstring,
+                      unsigned int* tiplist_count)
 {
   unsigned int i;
   unsigned int k;
   unsigned int commas_count = 0;
 
-  char * taxon;
+  char* taxon;
   unsigned int taxon_len;
 
-  ENTRY * found = NULL;
+  ENTRY* found = NULL;
 
   for (i = 0; i < strlen(tipstring); ++i)
     if (tipstring[i] == ',')
       commas_count++;
-  
-  rtree_t ** node_list = (rtree_t **)xmalloc(root->leaves * sizeof(rtree_t *));
+
+  rtree_t** node_list = (rtree_t**)xmalloc(root->leaves * sizeof(rtree_t*));
   rtree_query_tipnodes(root, node_list);
 
-  rtree_t ** out_node_list = (rtree_t **)xmalloc((commas_count+1) *
-                                                   sizeof(rtree_t *));
+  rtree_t** out_node_list =
+    (rtree_t**)xmalloc((commas_count + 1) * sizeof(rtree_t*));
 
   /* create a hashtable of tip labels */
   hcreate(2 * root->leaves);
 
-  for (i = 0; i < root->leaves; ++i)
-  {
+  for (i = 0; i < root->leaves; ++i) {
     ENTRY entry;
-    entry.key  = node_list[i]->label;
+    entry.key = node_list[i]->label;
     entry.data = node_list[i];
-    hsearch(entry,ENTER);
+    hsearch(entry, ENTER);
   }
 
-  char * s = tipstring;
-  
+  char* s = tipstring;
+
   k = 0;
-  while (*s)
-  {
+  while (*s) {
     /* get next tip */
     taxon_len = strcspn(s, ",");
     if (!taxon_len)
@@ -523,18 +521,18 @@ rtree_t ** rtree_tipstring_nodes(rtree_t * root, char * tipstring, unsigned int 
     ENTRY query;
     query.key = taxon;
     found = NULL;
-    found = hsearch(query,FIND);
-    
+    found = hsearch(query, FIND);
+
     if (!found)
       fatal("Taxon %s in does not appear in the tree", taxon);
 
     /* store pointer in output list */
-    out_node_list[k++] = (rtree_t *)(found->data);
+    out_node_list[k++] = (rtree_t*)(found->data);
 
     /* free tip label, and move to the beginning of next tip if available */
     free(taxon);
     s += taxon_len;
-    if (*s == ',') 
+    if (*s == ',')
       s += 1;
   }
 
@@ -550,37 +548,36 @@ rtree_t ** rtree_tipstring_nodes(rtree_t * root, char * tipstring, unsigned int 
   return out_node_list;
 }
 
-rtree_t ** rtree_tiplist_complement(rtree_t * root,
-                                    rtree_t ** tiplist,
-                                    unsigned int tiplist_count)
+rtree_t**
+rtree_tiplist_complement(rtree_t* root,
+                         rtree_t** tiplist,
+                         unsigned int tiplist_count)
 {
   unsigned int i;
   unsigned int k;
-  ENTRY * found = NULL;
+  ENTRY* found = NULL;
 
   hcreate(2 * tiplist_count);
 
-  for (i = 0; i < tiplist_count; ++i)
-  {
+  for (i = 0; i < tiplist_count; ++i) {
     ENTRY entry;
-    entry.key  = tiplist[i]->label;
+    entry.key = tiplist[i]->label;
     entry.data = tiplist[i];
-    hsearch(entry,ENTER);
+    hsearch(entry, ENTER);
   }
-  
-  rtree_t ** node_list = (rtree_t **)xmalloc(root->leaves * sizeof(rtree_t *));
+
+  rtree_t** node_list = (rtree_t**)xmalloc(root->leaves * sizeof(rtree_t*));
   rtree_query_tipnodes(root, node_list);
 
-  rtree_t ** out_node_list = (rtree_t **)xmalloc((root->leaves - tiplist_count)*
-                                                 sizeof(rtree_t *));
-  
-  for (k = 0, i = 0; i < root->leaves; ++i)
-  {
+  rtree_t** out_node_list =
+    (rtree_t**)xmalloc((root->leaves - tiplist_count) * sizeof(rtree_t*));
+
+  for (k = 0, i = 0; i < root->leaves; ++i) {
     ENTRY query;
     query.key = node_list[i]->label;
     found = NULL;
-    found = hsearch(query,FIND);
-    
+    found = hsearch(query, FIND);
+
     /* store pointer in output list */
     if (!found)
       out_node_list[k++] = node_list[i];

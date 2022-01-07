@@ -21,29 +21,29 @@
 
 #include "newick-tools.h"
 
-static char * progname;
+static char* progname;
 static char progheader[80];
-static char * cmdline;
+static char* cmdline;
 
 /* global error message buffer */
-char errmsg[200] = {0};
+char errmsg[200] = { 0 };
 
 /* number of mandatory options for the user to input */
 static const char mandatory_options_count = 1;
-static const char * mandatory_options_list = " --tree_file";
+static const char* mandatory_options_list = " --tree_file";
 
 /* options */
-char * opt_treefile;
-char * opt_outfile;
-char * opt_identical;
-char * opt_prune_tips;
-char * opt_root;
-char * opt_induce_subtree;
-char * opt_alltree_filename;
-char * opt_resolve_clade;
-char * opt_labels;
-char * opt_attach_filename;
-char * opt_attach_at;
+char* opt_treefile;
+char* opt_outfile;
+char* opt_identical;
+char* opt_prune_tips;
+char* opt_root;
+char* opt_induce_subtree;
+char* opt_alltree_filename;
+char* opt_resolve_clade;
+char* opt_labels;
+char* opt_attach_filename;
+char* opt_attach_at;
 int opt_quiet;
 int opt_precision;
 int opt_svg_showlegend;
@@ -86,60 +86,59 @@ double opt_deathrate;
 double opt_origin;
 double opt_scalebranch_factor;
 
-
-static struct option long_options[] =
-{
-  {"help",                 no_argument,       0, 0 },  /*  0 */
-  {"version",              no_argument,       0, 0 },  /*  1 */
-  {"quiet",                no_argument,       0, 0 },  /*  2 */
-  {"tree_file",            required_argument, 0, 0 },  /*  3 */
-  {"tree_show",            no_argument,       0, 0 },  /*  4 */
-  {"lca_left",             no_argument,       0, 0 },  /*  5 */
-  {"lca_right",            no_argument,       0, 0 },  /*  6 */
-  {"identical",            required_argument, 0, 0 },  /*  7 */
-  {"root",                 required_argument, 0, 0 },  /*  8 */
-  {"output_file",          required_argument, 0, 0 },  /*  9 */
-  {"extract_ltips",        no_argument,       0, 0 },  /* 10 */
-  {"extract_rtips",        no_argument,       0, 0 },  /* 11 */
-  {"extract_tips",         no_argument,       0, 0 },  /* 12 */
-  {"prune_tips",           required_argument, 0, 0 },  /* 13 */
-  {"svg",                  no_argument,       0, 0 },  /* 14 */
-  {"extract_lsubtree",     no_argument,       0, 0 },  /* 15 */
-  {"extract_rsubtree",     no_argument,       0, 0 },  /* 16 */
-  {"induce_subtree",       required_argument, 0, 0 },  /* 17 */
-  {"svg_width",            required_argument, 0, 0 },  /* 18 */
-  {"svg_fontsize",         required_argument, 0, 0 },  /* 19 */
-  {"svg_tipspacing",       required_argument, 0, 0 },  /* 20 */
-  {"svg_legend_ratio",     required_argument, 0, 0 },  /* 21 */
-  {"svg_nolegend",         no_argument,       0, 0 },  /* 22 */
-  {"svg_marginleft",       required_argument, 0, 0 },  /* 23 */
-  {"svg_marginright",      required_argument, 0, 0 },  /* 24 */
-  {"svg_margintop",        required_argument, 0, 0 },  /* 25 */
-  {"svg_marginbottom",     required_argument, 0, 0 },  /* 26 */
-  {"svg_inner_radius",     required_argument, 0, 0 },  /* 27 */
-  {"precision",            required_argument, 0, 0 },  /* 28 */
-  {"prune_random",         required_argument, 0, 0 },  /* 29 */
-  {"seed",                 required_argument, 0, 0 },  /* 30 */
-  {"subtree_short",        required_argument, 0, 0 },  /* 31 */
-  {"info",                 no_argument,       0, 0 },  /* 32 */
-  {"make_binary",          no_argument,       0, 0 },  /* 33 */
-  {"utree_all",            required_argument, 0, 0 },  /* 34 */
-  {"randomtree_binary",    required_argument, 0, 0 },  /* 35 */
-  {"randomtree_branches",  required_argument, 0, 0 },  /* 36 */
-  {"resolve-clade",        required_argument, 0, 0 },  /* 37 */
-  {"resolve-ladder",       no_argument,       0, 0 },  /* 38 */
-  {"simulate_birthdeath",  required_argument, 0, 0 },  /* 39 */
-  {"birthrate",            required_argument, 0, 0 },  /* 40 */
-  {"deathrate",            required_argument, 0, 0 },  /* 41 */
-  {"origin",               required_argument, 0, 0 },  /* 42 */
-  {"labels",               required_argument, 0, 0 },  /* 43 */
-  {"attach",               required_argument, 0, 0 },  /* 44 */
-  {"attach_at",            required_argument, 0, 0 },  /* 45 */
-  {"scale_branch",         required_argument, 0, 0 },  /* 46 */
+static struct option long_options[] = {
+  { "help", no_argument, 0, 0 },                      /*  0 */
+  { "version", no_argument, 0, 0 },                   /*  1 */
+  { "quiet", no_argument, 0, 0 },                     /*  2 */
+  { "tree_file", required_argument, 0, 0 },           /*  3 */
+  { "tree_show", no_argument, 0, 0 },                 /*  4 */
+  { "lca_left", no_argument, 0, 0 },                  /*  5 */
+  { "lca_right", no_argument, 0, 0 },                 /*  6 */
+  { "identical", required_argument, 0, 0 },           /*  7 */
+  { "root", required_argument, 0, 0 },                /*  8 */
+  { "output_file", required_argument, 0, 0 },         /*  9 */
+  { "extract_ltips", no_argument, 0, 0 },             /* 10 */
+  { "extract_rtips", no_argument, 0, 0 },             /* 11 */
+  { "extract_tips", no_argument, 0, 0 },              /* 12 */
+  { "prune_tips", required_argument, 0, 0 },          /* 13 */
+  { "svg", no_argument, 0, 0 },                       /* 14 */
+  { "extract_lsubtree", no_argument, 0, 0 },          /* 15 */
+  { "extract_rsubtree", no_argument, 0, 0 },          /* 16 */
+  { "induce_subtree", required_argument, 0, 0 },      /* 17 */
+  { "svg_width", required_argument, 0, 0 },           /* 18 */
+  { "svg_fontsize", required_argument, 0, 0 },        /* 19 */
+  { "svg_tipspacing", required_argument, 0, 0 },      /* 20 */
+  { "svg_legend_ratio", required_argument, 0, 0 },    /* 21 */
+  { "svg_nolegend", no_argument, 0, 0 },              /* 22 */
+  { "svg_marginleft", required_argument, 0, 0 },      /* 23 */
+  { "svg_marginright", required_argument, 0, 0 },     /* 24 */
+  { "svg_margintop", required_argument, 0, 0 },       /* 25 */
+  { "svg_marginbottom", required_argument, 0, 0 },    /* 26 */
+  { "svg_inner_radius", required_argument, 0, 0 },    /* 27 */
+  { "precision", required_argument, 0, 0 },           /* 28 */
+  { "prune_random", required_argument, 0, 0 },        /* 29 */
+  { "seed", required_argument, 0, 0 },                /* 30 */
+  { "subtree_short", required_argument, 0, 0 },       /* 31 */
+  { "info", no_argument, 0, 0 },                      /* 32 */
+  { "make_binary", no_argument, 0, 0 },               /* 33 */
+  { "utree_all", required_argument, 0, 0 },           /* 34 */
+  { "randomtree_binary", required_argument, 0, 0 },   /* 35 */
+  { "randomtree_branches", required_argument, 0, 0 }, /* 36 */
+  { "resolve-clade", required_argument, 0, 0 },       /* 37 */
+  { "resolve-ladder", no_argument, 0, 0 },            /* 38 */
+  { "simulate_birthdeath", required_argument, 0, 0 }, /* 39 */
+  { "birthrate", required_argument, 0, 0 },           /* 40 */
+  { "deathrate", required_argument, 0, 0 },           /* 41 */
+  { "origin", required_argument, 0, 0 },              /* 42 */
+  { "labels", required_argument, 0, 0 },              /* 43 */
+  { "attach", required_argument, 0, 0 },              /* 44 */
+  { "attach_at", required_argument, 0, 0 },           /* 45 */
+  { "scale_branch", required_argument, 0, 0 },        /* 46 */
   { 0, 0, 0, 0 }
 };
 
-void args_init(int argc, char ** argv)
+void
+args_init(int argc, char** argv)
 {
   int option_index = 0;
   int c;
@@ -199,10 +198,9 @@ void args_init(int argc, char ** argv)
   opt_scalebranch = 0;
   opt_scalebranch_factor = 0;
 
-  while ((c = getopt_long_only(argc, argv, "", long_options, &option_index)) == 0)
-  {
-    switch (option_index)
-    {
+  while ((c = getopt_long_only(argc, argv, "", long_options, &option_index)) ==
+         0) {
+    switch (option_index) {
       case 0:
         opt_help = 1;
         break;
@@ -291,7 +289,7 @@ void args_init(int argc, char ** argv)
       case 21:
         opt_svg_legend_ratio = atof(optarg);
         break;
-      
+
       case 22:
         opt_svg_showlegend = 0;
         break;
@@ -345,16 +343,15 @@ void args_init(int argc, char ** argv)
       case 34:
         opt_alltree_filename = optarg;
         break;
-      
+
       case 35:
         opt_randomtree_binary = 1;
         opt_randomtree_tips = atol(optarg);
         break;
 
       case 36:
-        if (!args_getdouble2(optarg,
-                             &opt_randomtree_minbranch,
-                             &opt_randomtree_maxbranch))
+        if (!args_getdouble2(
+              optarg, &opt_randomtree_minbranch, &opt_randomtree_maxbranch))
           fatal("Illegal option argument");
         break;
 
@@ -409,11 +406,10 @@ void args_init(int argc, char ** argv)
   if (c != -1)
     exit(EXIT_FAILURE);
 
-  int commands  = 0;
+  int commands = 0;
 
   /* check for mandatory options */
-  if (opt_treefile)
-  {
+  if (opt_treefile) {
     mand_options++;
   }
 
@@ -421,13 +417,11 @@ void args_init(int argc, char ** argv)
     commands++;
 
   /* check for number of independent commands selected */
-  if (opt_version)
-  {
+  if (opt_version) {
     mand_options = mandatory_options_count;
     commands++;
   }
-  if (opt_help)
-  {
+  if (opt_help) {
     mand_options = mandatory_options_count;
     commands++;
   }
@@ -484,155 +478,184 @@ void args_init(int argc, char ** argv)
     fatal("The argument to --randomtree_binary must be greater than 1");
 
   /* if no command specified, turn on --help */
-  if (!commands)
-  {
+  if (!commands) {
     opt_help = 1;
     return;
   }
-  
-  if (opt_simulate_bd)
-  {
+
+  if (opt_simulate_bd) {
     if (opt_simulate_tips < 2)
       fatal("The argument to --simulate_birthdeath must be greater than 1");
 
-    if (opt_birthrate <= 0) 
+    if (opt_birthrate <= 0)
       fatal("The argument to --birthrate must be greater than 0");
 
-    if (opt_deathrate < 0) 
+    if (opt_deathrate < 0)
       fatal("The argument to --deathrate must be greater or equal to 0");
 
     if (opt_birthrate - opt_deathrate < 0)
-      fatal("The argument to --birthrate must be greater or equal to --deathrate");
+      fatal(
+        "The argument to --birthrate must be greater or equal to --deathrate");
 
     if (opt_origin_scale && opt_origin <= 0)
       fatal("The argument to --origin must be greater or equal to 0");
-
   }
 
   /* check for mandatory options */
   if (!opt_alltree_filename && !opt_randomtree_binary && !opt_simulate_bd)
     if (mand_options != mandatory_options_count)
       fatal("Mandatory options are:\n\n%s", mandatory_options_list);
-
 }
 
-void cmd_help()
+void
+cmd_help()
 {
-  fprintf(stderr,
-          "Usage: %s [OPTIONS]\n", progname);
-  fprintf(stderr,
-          "\n"
-          "General options:\n"
-          "  --help                           Display help information.\n"
-          "  --version                        Display version information.\n"
-          "  --quiet                          Only output warnings and fatal errors to stderr.\n"
-          "  --precision                      Number of digits to display after decimal point.\n"
-          "  --seed INT                       Seed to initialize random number generator.\n"
-          "Commnads for binary trees:\n"
-          "  --lca_left                       Print  two  taxa whose LCA is the left child of\n"
-          "                                   the root node.\n"
-          "  --lca_right                      Print  two taxa whose LCA is the right child of\n"
-          "                                   the root node.\n"
-          "  --identical FILENAME             Check whether the tree specified by FILENAME is\n"
-          "                                   identical to the --tree_file.\n"
-          "  --extract_ltips                  Display all tip label of left subtree.\n"
-          "  --extract_rtips                  Display all tip label of right subtree.\n"
-          "  --svg                            Create an SVG image of the tree.\n"
-          "  --induce_subtree TAXA            Construct induced tree from specified taxa.\n"
-          "  --subtree_short REAL             Print all subtrees where all branch lengths are\n"
-          "                                   shorter or equal to the threshold\n"
-          "  --randomtree_binary INT          Create a random binary tree with INT tips.\n"
-          "  --randomtree_branches MIN,MAX    Branches are uniformly distributed from given range.\n"
-          "  --simulate_birthdeath INT        Simulate a tree with given tips using the constant-rate birth death process.\n"
-          "  --birthrate REAL                 Set birth rate.\n"
-          "  --deathrate REAL                 Set death rate.\n"
-          "  --origin REAL                    Scale branches such that origin is at given age.\n"
-          "  --labels FILE                    Tip labels are taken from file.\n"
-          "  --attach FILE                    Attach tree from file to tip label of input tree.\n"
-          "  --attach_at STRING               Attach tree to specified tip.\n"
-          "  --scale_branch REAL              Multiply all branches with given scaler.\n"
-          "Commands for unrooted trees:\n"
-          "  --root TAXA                      Root  the  tree  on  the  outgroup specified by\n"
-          "                                   TAXA. The edge connecting the outgroup (must be\n"
-          "                                   A  subtree)  with the rest of the tree is split\n"
-          "                                   Into  two edges and a new root node is created.\n"
-          "                                   If  TAXA  is empty, then the longest tip-branch\n"
-          "                                   Is used.\n"
-          "  --utree_all FILENAME             Generate all unrooted tree topologies for the\n"
-          "                                   Taxa in the provided file (one taxon per line\n"
-          "Commands for all tree types:\n"
-          "  --extract_tips                   Display all tip labels.\n"
-          "  --prune_tips TAXA                Prune the comma-separated TAXA from the tree.\n"
-          "  --prune_random INT               Randomly prune the specified amount of taxa.\n"
-          "  --tree_show                      Display an ASCII version of the tree.\n"
-          "  --info                           Display information about tree.\n"
-          "  --make_binary                    Convert n-ary/unrooted tree to binary.\n"
-          "  --resolve-clade STRING           Resolve to binary only the given clade.\n"
-          "  --resolve-ladder                 Resolve to binary in ladder-like way.\n"
-          "Options for visualization:\n"
-          "  --svg_width INT                  Width of SVG image in pixels (default: 1920).\n"
-          "  --svg_fontsize INT               Font size of SVG image. (default: 12)\n"
-          "  --svg_tipspacing INT             Vertical   distance  (in  pixels)  between  two\n"
-          "                                   Consencutive  taxa  in  the SVG image (default:\n"
-          "                                   20).\n"
-          "  --svg_legend_ratio <0..1>        Ratio of the total tree length to be displayed as legend line.\n"
-          "  --svg_nolegend                   Do not show the legend.\n"
-          "  --svg_marginleft INT             Left margin in pixels (default: 20).\n"
-          "  --svg_marginright INT            Right margin in pixels (default: 20).\n"
-          "  --svg_margintop INT              Top margin in pixels (default: 20).\n"
-          "  --svg_marginbottom INT           Bottom margin in pixels (default: 20).\n"
-          "  --svg_inner_radius               Radius of inner nodes in pixels (default: 0).\n"
-          "Input and output options:\n"
-          "  --tree_file FILENAME             Tree file in newick format.\n"
-          "  --output_file FILENAME           Optional output file name. If not specified, output is displayed on terminal.\n"
-         );
+  fprintf(stderr, "Usage: %s [OPTIONS]\n", progname);
+  fprintf(
+    stderr,
+    "\n"
+    "General options:\n"
+    "  --help                           Display help information.\n"
+    "  --version                        Display version information.\n"
+    "  --quiet                          Only output warnings and fatal errors "
+    "to stderr.\n"
+    "  --precision                      Number of digits to display after "
+    "decimal point.\n"
+    "  --seed INT                       Seed to initialize random number "
+    "generator.\n"
+    "Commnads for binary trees:\n"
+    "  --lca_left                       Print  two  taxa whose LCA is the left "
+    "child of\n"
+    "                                   the root node.\n"
+    "  --lca_right                      Print  two taxa whose LCA is the right "
+    "child of\n"
+    "                                   the root node.\n"
+    "  --identical FILENAME             Check whether the tree specified by "
+    "FILENAME is\n"
+    "                                   identical to the --tree_file.\n"
+    "  --extract_ltips                  Display all tip label of left "
+    "subtree.\n"
+    "  --extract_rtips                  Display all tip label of right "
+    "subtree.\n"
+    "  --svg                            Create an SVG image of the tree.\n"
+    "  --induce_subtree TAXA            Construct induced tree from specified "
+    "taxa.\n"
+    "  --subtree_short REAL             Print all subtrees where all branch "
+    "lengths are\n"
+    "                                   shorter or equal to the threshold\n"
+    "  --randomtree_binary INT          Create a random binary tree with INT "
+    "tips.\n"
+    "  --randomtree_branches MIN,MAX    Branches are uniformly distributed "
+    "from given range.\n"
+    "  --simulate_birthdeath INT        Simulate a tree with given tips using "
+    "the constant-rate birth death process.\n"
+    "  --birthrate REAL                 Set birth rate.\n"
+    "  --deathrate REAL                 Set death rate.\n"
+    "  --origin REAL                    Scale branches such that origin is at "
+    "given age.\n"
+    "  --labels FILE                    Tip labels are taken from file.\n"
+    "  --attach FILE                    Attach tree from file to tip label of "
+    "input tree.\n"
+    "  --attach_at STRING               Attach tree to specified tip.\n"
+    "  --scale_branch REAL              Multiply all branches with given "
+    "scaler.\n"
+    "Commands for unrooted trees:\n"
+    "  --root TAXA                      Root  the  tree  on  the  outgroup "
+    "specified by\n"
+    "                                   TAXA. The edge connecting the outgroup "
+    "(must be\n"
+    "                                   A  subtree)  with the rest of the tree "
+    "is split\n"
+    "                                   Into  two edges and a new root node is "
+    "created.\n"
+    "                                   If  TAXA  is empty, then the longest "
+    "tip-branch\n"
+    "                                   Is used.\n"
+    "  --utree_all FILENAME             Generate all unrooted tree topologies "
+    "for the\n"
+    "                                   Taxa in the provided file (one taxon "
+    "per line\n"
+    "Commands for all tree types:\n"
+    "  --extract_tips                   Display all tip labels.\n"
+    "  --prune_tips TAXA                Prune the comma-separated TAXA from "
+    "the tree.\n"
+    "  --prune_random INT               Randomly prune the specified amount of "
+    "taxa.\n"
+    "  --tree_show                      Display an ASCII version of the tree.\n"
+    "  --info                           Display information about tree.\n"
+    "  --make_binary                    Convert n-ary/unrooted tree to "
+    "binary.\n"
+    "  --resolve-clade STRING           Resolve to binary only the given "
+    "clade.\n"
+    "  --resolve-ladder                 Resolve to binary in ladder-like way.\n"
+    "Options for visualization:\n"
+    "  --svg_width INT                  Width of SVG image in pixels (default: "
+    "1920).\n"
+    "  --svg_fontsize INT               Font size of SVG image. (default: 12)\n"
+    "  --svg_tipspacing INT             Vertical   distance  (in  pixels)  "
+    "between  two\n"
+    "                                   Consencutive  taxa  in  the SVG image "
+    "(default:\n"
+    "                                   20).\n"
+    "  --svg_legend_ratio <0..1>        Ratio of the total tree length to be "
+    "displayed as legend line.\n"
+    "  --svg_nolegend                   Do not show the legend.\n"
+    "  --svg_marginleft INT             Left margin in pixels (default: 20).\n"
+    "  --svg_marginright INT            Right margin in pixels (default: 20).\n"
+    "  --svg_margintop INT              Top margin in pixels (default: 20).\n"
+    "  --svg_marginbottom INT           Bottom margin in pixels (default: "
+    "20).\n"
+    "  --svg_inner_radius               Radius of inner nodes in pixels "
+    "(default: 0).\n"
+    "Input and output options:\n"
+    "  --tree_file FILENAME             Tree file in newick format.\n"
+    "  --output_file FILENAME           Optional output file name. If not "
+    "specified, output is displayed on terminal.\n");
 }
 
-int args_getdouble2(char * arg, double * a, double * b)
+int
+args_getdouble2(char* arg, double* a, double* b)
 {
   int len;
 
   int ret = sscanf(arg, "%lf,%lf%n", a, b, &len);
-  
+
   if ((ret != 2) || ((unsigned int)(len)) < strlen(arg))
     return 0;
 
   return 1;
 }
 
-void cmd_tree_show()
+void
+cmd_tree_show()
 {
-  FILE * out;
+  FILE* out;
 
   /* attempt to open output file */
-  out = opt_outfile ?
-          xopen(opt_outfile,"w") : stdout;
+  out = opt_outfile ? xopen(opt_outfile, "w") : stdout;
 
   /* parse tree */
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
-  if (!rtree)
-  {
+  if (!rtree) {
     int tip_count;
-    utree_t * utree = utree_parse_newick(opt_treefile, &tip_count);
+    utree_t* utree = utree_parse_newick(opt_treefile, &tip_count);
     if (!utree)
       fatal("Tree is neither unrooted nor rooted. Go fix your tree.");
-     
+
     if (!opt_quiet)
       fprintf(stdout, "Loaded unrooted tree...\n");
 
-    utree_show_ascii(out,utree);
+    utree_show_ascii(out, utree);
     utree_destroy(utree);
-  }
-  else
-  {
+  } else {
     if (!opt_quiet)
       fprintf(stdout, "Loaded rooted binary tree...\n");
 
-    rtree_show_ascii(out,rtree);
+    rtree_show_ascii(out, rtree);
     rtree_destroy(rtree);
   }
 
@@ -640,28 +663,29 @@ void cmd_tree_show()
     fclose(out);
 }
 
-void cmd_lca_left()
+void
+cmd_lca_left()
 {
-  rtree_t * tip1, * tip2;
+  rtree_t *tip1, *tip2;
 
   /* parse tree */
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
   if (!rtree)
     fatal("Tree must be rooted...");
-  
+
   lca_tips(rtree, &tip1, &tip2);
 
   if (!opt_quiet)
     printf("Computing left lca tips...\n");
 
   if (tip1)
-    fprintf(stdout,"%s\n",tip1->label);
+    fprintf(stdout, "%s\n", tip1->label);
   if (tip2)
-    fprintf(stdout,"%s\n",tip2->label);
+    fprintf(stdout, "%s\n", tip2->label);
 
   /* deallocate tree structure */
   rtree_destroy(rtree);
@@ -670,13 +694,13 @@ void cmd_lca_left()
     fprintf(stdout, "Done...\n");
 }
 
-void cmd_root()
+void
+cmd_root()
 {
-  FILE * out;
+  FILE* out;
 
   /* attempt to open output file */
-  out = opt_outfile ?
-          xopen(opt_outfile,"w") : stdout;
+  out = opt_outfile ? xopen(opt_outfile, "w") : stdout;
 
   /* parse tree */
   if (!opt_quiet)
@@ -684,18 +708,18 @@ void cmd_root()
 
   int tip_count;
 
-  utree_t * utree = utree_parse_newick(opt_treefile, &tip_count);
+  utree_t* utree = utree_parse_newick(opt_treefile, &tip_count);
   if (!utree)
     fatal("File %s does not contain an unrooted binary tree...", opt_treefile);
 
-  rtree_t * rtree = utree_convert_rtree(utree, tip_count, opt_root);
+  rtree_t* rtree = utree_convert_rtree(utree, tip_count, opt_root);
   utree_destroy(utree);
 
   if (!opt_quiet)
     fprintf(stdout, "Writing tree file...\n");
 
   /* export tree structure to newick string */
-  char * newick = rtree_export_newick(rtree);
+  char* newick = rtree_export_newick(rtree);
 
   fprintf(out, "%s\n", newick);
 
@@ -711,37 +735,36 @@ void cmd_root()
     fprintf(stdout, "Done...\n");
 }
 
-void cmd_scalebranch()
+void
+cmd_scalebranch()
 {
   int i;
   int nodes_count;
-  FILE * out;
+  FILE* out;
 
   /* attempt to open output file */
-  out = opt_outfile ?
-          xopen(opt_outfile,"w") : stdout;
+  out = opt_outfile ? xopen(opt_outfile, "w") : stdout;
 
   /* parse tree */
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
   if (!rtree)
     fatal("Tree must be rooted...");
 
-  nodes_count = 2*rtree->leaves-1;
-  rtree_t ** nodes = (rtree_t **)xmalloc(nodes_count*sizeof(rtree_t *));
+  nodes_count = 2 * rtree->leaves - 1;
+  rtree_t** nodes = (rtree_t**)xmalloc(nodes_count * sizeof(rtree_t*));
 
   /* get all nodes */
   rtree_query_tipnodes(rtree, nodes);
-  rtree_query_innernodes(rtree, nodes+rtree->leaves);
+  rtree_query_innernodes(rtree, nodes + rtree->leaves);
 
-  for (i=0; i < nodes_count; ++i)
+  for (i = 0; i < nodes_count; ++i)
     nodes[i]->length *= opt_scalebranch_factor;
 
-  
-  char * newick = rtree_export_newick(rtree);
+  char* newick = rtree_export_newick(rtree);
 
   fprintf(out, "%s\n", newick);
 
@@ -749,7 +772,7 @@ void cmd_scalebranch()
     fclose(out);
 
   free(newick);
-  
+
   /* deallocate tree structure */
   rtree_destroy(rtree);
 
@@ -757,25 +780,24 @@ void cmd_scalebranch()
     fprintf(stdout, "\nDone...\n");
 }
 
-void cmd_extract_subtree(int which)
+void
+cmd_extract_subtree(int which)
 {
-  FILE * out;
+  FILE* out;
 
   /* attempt to open output file */
-  out = opt_outfile ?
-          xopen(opt_outfile,"w") : stdout;
+  out = opt_outfile ? xopen(opt_outfile, "w") : stdout;
 
   /* parse tree */
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
   if (!rtree)
     fatal("Tree must be rooted...");
 
-  
-  char * newick;
+  char* newick;
   if (which == 0)
     newick = rtree_export_newick(rtree->left);
   else
@@ -787,42 +809,42 @@ void cmd_extract_subtree(int which)
     fclose(out);
 
   free(newick);
-  
+
   /* deallocate tree structure */
   rtree_destroy(rtree);
 
   if (!opt_quiet)
     fprintf(stdout, "\nDone...\n");
 }
-void cmd_extract_ltips()
+void
+cmd_extract_ltips()
 {
   unsigned int i;
-  FILE * out;
+  FILE* out;
 
   /* attempt to open output file */
-  out = opt_outfile ?
-          xopen(opt_outfile,"w") : stdout;
+  out = opt_outfile ? xopen(opt_outfile, "w") : stdout;
 
   /* parse tree */
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
   if (!rtree)
     fatal("Tree must be rooted...");
-  
+
   if (!opt_quiet)
-    fprintf(out,"Tip labels for left subtree:\n");
+    fprintf(out, "Tip labels for left subtree:\n");
 
   /* allocate list of tip nodes in left subtree */
-  rtree_t ** node_list = (rtree_t **)calloc(rtree->left->leaves,
-                                            sizeof(rtree_t *)); 
+  rtree_t** node_list =
+    (rtree_t**)calloc(rtree->left->leaves, sizeof(rtree_t*));
   rtree_query_tipnodes(rtree->left, node_list);
 
   /* print tip-node labels */
   for (i = 0; i < rtree->left->leaves; ++i)
-    fprintf(out,"%s\n", node_list[i]->label);
+    fprintf(out, "%s\n", node_list[i]->label);
 
   /* deallocate tree structure */
   rtree_destroy(rtree);
@@ -836,30 +858,30 @@ void cmd_extract_ltips()
     fprintf(stdout, "\nDone...\n");
 }
 
-void cmd_extract_rtips()
+void
+cmd_extract_rtips()
 {
   unsigned int i;
-  FILE * out;
+  FILE* out;
 
   /* attempt to open output file */
-  out = opt_outfile ?
-          xopen(opt_outfile,"w") : stdout;
+  out = opt_outfile ? xopen(opt_outfile, "w") : stdout;
 
   /* parse tree */
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
   if (!rtree)
     fatal("Tree must be rooted...");
-  
+
   if (!opt_quiet)
-    fprintf(out,"Tip labels for left subtree:\n");
+    fprintf(out, "Tip labels for left subtree:\n");
 
   /* allocate list of tip nodes in left subtree */
-  rtree_t ** node_list = (rtree_t **)calloc(rtree->right->leaves,
-                                            sizeof(rtree_t *)); 
+  rtree_t** node_list =
+    (rtree_t**)calloc(rtree->right->leaves, sizeof(rtree_t*));
   rtree_query_tipnodes(rtree->right, node_list);
 
   /* print tip-node labels */
@@ -878,7 +900,8 @@ void cmd_extract_rtips()
     fprintf(stdout, "\nDone...\n");
 }
 
-void cmd_extract_tips()
+void
+cmd_extract_tips()
 {
   unsigned int i;
 
@@ -886,17 +909,16 @@ void cmd_extract_tips()
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
-  if (rtree)
-  {
+  if (rtree) {
     if (!opt_quiet)
       printf("Loaded binary rooted tree...\n");
 
     if (!opt_quiet)
       printf("Tip labels:\n");
 
-    rtree_t ** node_list = (rtree_t **)calloc(rtree->leaves,sizeof(rtree_t *)); 
+    rtree_t** node_list = (rtree_t**)calloc(rtree->leaves, sizeof(rtree_t*));
     rtree_query_tipnodes(rtree, node_list);
 
     for (i = 0; i < rtree->leaves; ++i)
@@ -906,23 +928,21 @@ void cmd_extract_tips()
     rtree_destroy(rtree);
 
     free(node_list);
-  }
-  else
-  {
+  } else {
     int tip_count;
 
-    utree_t * utree = utree_parse_newick(opt_treefile, &tip_count);
+    utree_t* utree = utree_parse_newick(opt_treefile, &tip_count);
     if (!utree)
       fatal("Tree is neither rooted or unrooted...");
-    
+
     if (!opt_quiet)
       printf("Loaded binary unrooted tree...\n");
 
     if (!opt_quiet)
       printf("Tip labels:\n");
 
-    utree_t ** node_list = (utree_t **)calloc((size_t)tip_count,
-                                              sizeof(utree_t *)); 
+    utree_t** node_list =
+      (utree_t**)calloc((size_t)tip_count, sizeof(utree_t*));
     tip_count = utree_query_tipnodes(utree, node_list);
 
     for (i = 0; (int)i < tip_count; ++i)
@@ -933,12 +953,13 @@ void cmd_extract_tips()
 
     free(node_list);
   }
-  
+
   if (!opt_quiet)
     fprintf(stdout, "\nDone...\n");
 }
 
-void cmd_identical(void)
+void
+cmd_identical(void)
 {
   int i;
 
@@ -946,8 +967,8 @@ void cmd_identical(void)
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree1 = rtree_parse_newick(opt_treefile);
-  rtree_t * rtree2 = rtree_parse_newick(opt_identical);
+  rtree_t* rtree1 = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree2 = rtree_parse_newick(opt_identical);
 
   if (!rtree1)
     fatal("File %s does not contain a rooted binary tree...", opt_treefile);
@@ -956,43 +977,34 @@ void cmd_identical(void)
 
   if (rtree1->leaves != rtree2->leaves)
     printf("Trees have different topologies (number of leaves mismatch)\n");
-  else
-  {
-    rtree_t ** node_list1 = (rtree_t **)calloc(2*rtree1->leaves-1,sizeof(rtree_t *)); 
-    rtree_t ** node_list2 = (rtree_t **)calloc(2*rtree2->leaves-1,sizeof(rtree_t *)); 
+  else {
+    rtree_t** node_list1 =
+      (rtree_t**)calloc(2 * rtree1->leaves - 1, sizeof(rtree_t*));
+    rtree_t** node_list2 =
+      (rtree_t**)calloc(2 * rtree2->leaves - 1, sizeof(rtree_t*));
 
     int index = 0;
     rtree_traverse_sorted(rtree1, node_list1, &index);
     index = 0;
     rtree_traverse_sorted(rtree2, node_list2, &index);
 
-    for(i = 0; i < index; ++i)
-    {
-      if (node_list1[i]->left == NULL && node_list2[i]->left != NULL)
-      {
+    for (i = 0; i < index; ++i) {
+      if (node_list1[i]->left == NULL && node_list2[i]->left != NULL) {
         printf("Trees have different topologies\n");
         break;
-      }
-      else if (node_list1[i]->left != NULL && node_list2[i]->left == NULL)
-      {
+      } else if (node_list1[i]->left != NULL && node_list2[i]->left == NULL) {
         printf("Trees have different topologies\n");
         break;
       }
 
-      if (!node_list1[i]->label && node_list2[i]->label)
-      {
+      if (!node_list1[i]->label && node_list2[i]->label) {
         printf("Trees have different topologies\n");
         break;
-      }
-      else if (node_list1[i]->label && !node_list2[i]->label)
-      {
+      } else if (node_list1[i]->label && !node_list2[i]->label) {
         printf("Trees have different topologies\n");
         break;
-      }
-      else if (node_list1[i]->label && node_list2[i]->label)
-      {
-        if (strcmp(node_list1[i]->label, node_list2[i]->label))
-        {
+      } else if (node_list1[i]->label && node_list2[i]->label) {
+        if (strcmp(node_list1[i]->label, node_list2[i]->label)) {
           printf("Trees have different topologies\n");
           break;
         }
@@ -1012,33 +1024,29 @@ void cmd_identical(void)
 
   if (!opt_quiet)
     fprintf(stdout, "Done...\n");
-  
 }
 
-void cmd_make_binary()
+void
+cmd_make_binary()
 {
-  FILE * out;
+  FILE* out;
 
   /* parse tree */
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
-  if (rtree)
-  {
+  if (rtree) {
     printf("Loaded tree is already binary...\n");
 
     /* deallocate tree structure */
     rtree_destroy(rtree);
-  }
-  else
-  {
+  } else {
     int tip_count;
 
-    utree_t * utree = utree_parse_newick(opt_treefile, &tip_count);
-    if (utree)
-    {
+    utree_t* utree = utree_parse_newick(opt_treefile, &tip_count);
+    if (utree) {
       if (!opt_quiet)
         printf("Loaded unrooted binary tree...\n");
 
@@ -1047,20 +1055,18 @@ void cmd_make_binary()
     }
 
     /* load it as n-ary */
-    ntree_t * ntree = ntree_parse_newick(opt_treefile);
-    if (ntree)
-    {
+    ntree_t* ntree = ntree_parse_newick(opt_treefile);
+    if (ntree) {
       /* convert to binary */
-      rtree_t * rt = ntree_to_rtree(ntree);
+      rtree_t* rt = ntree_to_rtree(ntree);
 
       /* attempt to open output file */
-      out = opt_outfile ?
-              xopen(opt_outfile,"w") : stdout;
+      out = opt_outfile ? xopen(opt_outfile, "w") : stdout;
 
-      char * newick = rtree_export_newick(rt);
+      char* newick = rtree_export_newick(rt);
 
       if (!opt_quiet)
-        fprintf(stdout,"Writing newick string...\n");
+        fprintf(stdout, "Writing newick string...\n");
       fprintf(out, "%s\n", newick);
 
       free(newick);
@@ -1070,13 +1076,13 @@ void cmd_make_binary()
       /* deallocate tree structures */
       ntree_destroy(ntree);
       rtree_destroy(rt);
-    }
-    else
+    } else
       fatal("Failed loading tree as n-ary");
   }
 }
 
-void getentirecommandline(int argc, char * argv[])
+void
+getentirecommandline(int argc, char* argv[])
 {
   int len = 0;
   int i;
@@ -1084,126 +1090,90 @@ void getentirecommandline(int argc, char * argv[])
   for (i = 0; i < argc; ++i)
     len += strlen(argv[i]);
 
-  cmdline = (char *)xmalloc((size_t)(len + argc + 1));
+  cmdline = (char*)xmalloc((size_t)(len + argc + 1));
   cmdline[0] = 0;
 
-  for (i = 0; i < argc; ++i)
-  {
+  for (i = 0; i < argc; ++i) {
     strcat(cmdline, argv[i]);
     strcat(cmdline, " ");
   }
 }
 
-void fillheader()
+void
+fillheader()
 {
-  snprintf(progheader, 80,
+  snprintf(progheader,
+           80,
            "%s %s_%s, %1.fGB RAM, %ld cores",
-           PROG_NAME, PROG_VERSION, PROG_ARCH,
+           PROG_NAME,
+           PROG_VERSION,
+           PROG_ARCH,
            arch_get_memtotal() / 1024.0 / 1024.0 / 1024.0,
            sysconf(_SC_NPROCESSORS_ONLN));
 }
 
-void show_header()
+void
+show_header()
 {
   fprintf(stdout, "%s\n", progheader);
   fprintf(stdout, "https://github.com/xflouris/newick-tools\n");
-  fprintf(stdout,"\n");
+  fprintf(stdout, "\n");
 }
 
-int main (int argc, char * argv[])
+int
+main(int argc, char* argv[])
 {
   fillheader();
   getentirecommandline(argc, argv);
 
   args_init(argc, argv);
-  
+
   srand((unsigned int)opt_seed);
 
   if (!opt_quiet)
     show_header();
 
-  if (opt_help)
-  {
+  if (opt_help) {
     cmd_help();
-  }
-  else if (opt_lca_left)
-  {
+  } else if (opt_lca_left) {
     cmd_lca_left();
-  }
-  else if (opt_identical)
-  {
+  } else if (opt_identical) {
     cmd_identical();
-  }
-  else if (opt_root)
-  {
+  } else if (opt_root) {
     cmd_root();
-  }
-  else if (opt_extract_ltips)
-  {
+  } else if (opt_extract_ltips) {
     cmd_extract_ltips();
-  }
-  else if (opt_extract_rtips)
-  {
+  } else if (opt_extract_rtips) {
     cmd_extract_rtips();
-  }
-  else if (opt_extract_tips)
-  {
+  } else if (opt_extract_tips) {
     cmd_extract_tips();
-  }
-  else if (opt_prune_tips || opt_prune_random)
-  {
+  } else if (opt_prune_tips || opt_prune_random) {
     cmd_prune_tips();
-  }
-  else if (opt_svg)
-  {
+  } else if (opt_svg) {
     cmd_svg();
-  }
-  else if (opt_extract_lsubtree)
-  {
+  } else if (opt_extract_lsubtree) {
     cmd_extract_subtree(0);
-  }
-  else if (opt_extract_rsubtree)
-  {
+  } else if (opt_extract_rsubtree) {
     cmd_extract_subtree(1);
-  }
-  else if (opt_treeshow)
-  {
+  } else if (opt_treeshow) {
     cmd_tree_show();
-  }
-  else if (opt_induce_subtree)
-  {
+  } else if (opt_induce_subtree) {
     cmd_induce_tree();
-  }
-  else if (opt_subtree_short >= 0)
-  {
+  } else if (opt_subtree_short >= 0) {
     cmd_subtree_short();
-  }
-  else if (opt_info)
-  {
+  } else if (opt_info) {
     cmd_info();
-  }
-  else if (opt_make_binary)
-  {
+  } else if (opt_make_binary) {
     cmd_make_binary();
-  }
-  else if (opt_alltree_filename)
-  {
+  } else if (opt_alltree_filename) {
     cmd_utree_bf();
-  }
-  else if (opt_randomtree_binary)
-  {
+  } else if (opt_randomtree_binary) {
     cmd_randomtree_binary();
-  }
-  else if (opt_simulate_bd)
-  {
+  } else if (opt_simulate_bd) {
     cmd_simulate_bd();
-  }
-  else if (opt_attach_filename)
-  {
+  } else if (opt_attach_filename) {
     cmd_attach_tree();
-  }
-  else if (opt_scalebranch)
-  {
+  } else if (opt_scalebranch) {
     cmd_scalebranch();
   }
 

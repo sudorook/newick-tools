@@ -21,10 +21,11 @@
 
 #include "newick-tools.h"
 
-static void show_tree_info(int tip_count,
-                           int inner_count,
-                           int min_inner_degree,
-                           int max_inner_degree)
+static void
+show_tree_info(int tip_count,
+               int inner_count,
+               int min_inner_degree,
+               int max_inner_degree)
 {
   printf("Leaves (tip nodes): %d\n"
          "Inner nodes: %d\n"
@@ -33,32 +34,30 @@ static void show_tree_info(int tip_count,
          "Minimum inner node degree: %d\n"
          "Maximum inner node degree: %d\n",
          tip_count,
-         inner_count, 
+         inner_count,
          tip_count + inner_count,
          tip_count + inner_count - 1,
          min_inner_degree,
          max_inner_degree);
 }
 
-static void rtree_info(rtree_t * root)
+static void
+rtree_info(rtree_t* root)
 {
   int tip_count = root->leaves;
   int inner_count = tip_count - 1;
   int max_inner_degree = 3;
   int min_inner_degree = 2;
 
-  show_tree_info(tip_count,
-                 inner_count,
-                 min_inner_degree,
-                 max_inner_degree);
+  show_tree_info(tip_count, inner_count, min_inner_degree, max_inner_degree);
 
-  double * outbuffer = (double *)xmalloc((tip_count+inner_count-1) * 
-                                          sizeof(double));
+  double* outbuffer =
+    (double*)xmalloc((tip_count + inner_count - 1) * sizeof(double));
 
   int count = rtree_query_branch_lengths(root, outbuffer);
 
-  double min,max,mean,median,var,stdev;
-  stats(outbuffer,count,&min,&max,&mean,&median,&var,&stdev);
+  double min, max, mean, median, var, stdev;
+  stats(outbuffer, count, &min, &max, &mean, &median, &var, &stdev);
   printf("Min. branch length: %f\n", min);
   printf("Max. branch length: %f\n", max);
   printf("Mean branch length: %f\n", mean);
@@ -68,26 +67,24 @@ static void rtree_info(rtree_t * root)
   printf("Longest lineage: %f\n", rtree_longest_path(root));
 
   free(outbuffer);
-
 }
 
-static void utree_info(utree_t * node, int tip_count)
+static void
+utree_info(utree_t* node, int tip_count)
 {
   int inner_count = tip_count - 2;
   int max_inner_degree = 3;
   int min_inner_degree = 3;
 
-  show_tree_info(tip_count,
-                 inner_count,
-                 min_inner_degree,
-                 max_inner_degree);
+  show_tree_info(tip_count, inner_count, min_inner_degree, max_inner_degree);
 
-  double * outbuffer = (double *)xmalloc((tip_count+inner_count-1) * 
-                                          sizeof(double));
+  double* outbuffer =
+    (double*)xmalloc((tip_count + inner_count - 1) * sizeof(double));
 
-  int count = utree_query_branch_lengths(node, outbuffer, tip_count+inner_count );
-  double min,max,mean,median,var,stdev;
-  stats(outbuffer,count,&min,&max,&mean,&median,&var,&stdev);
+  int count =
+    utree_query_branch_lengths(node, outbuffer, tip_count + inner_count);
+  double min, max, mean, median, var, stdev;
+  stats(outbuffer, count, &min, &max, &mean, &median, &var, &stdev);
   printf("Min. branch length: %f\n", min);
   printf("Max. branch length: %f\n", max);
   printf("Mean branch length: %f\n", mean);
@@ -98,36 +95,30 @@ static void utree_info(utree_t * node, int tip_count)
   free(outbuffer);
 }
 
-static void ntree_info(ntree_t * root)
+static void
+ntree_info(ntree_t* root)
 {
   int tip_count;
   int inner_count;
   int max_inner_degree;
   int min_inner_degree;
 
-  ntree_node_count(root,
-                   &inner_count,
-                   &tip_count,
-                   &min_inner_degree,
-                   &max_inner_degree);
+  ntree_node_count(
+    root, &inner_count, &tip_count, &min_inner_degree, &max_inner_degree);
 
-  show_tree_info(tip_count,
-                 inner_count,
-                 min_inner_degree,
-                 max_inner_degree);
-
+  show_tree_info(tip_count, inner_count, min_inner_degree, max_inner_degree);
 }
 
-void cmd_info(void)
+void
+cmd_info(void)
 {
   /* parse tree */
   if (!opt_quiet)
     fprintf(stdout, "Parsing tree file...\n");
 
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
-  if (rtree)
-  {
+  if (rtree) {
     if (!opt_quiet)
       printf("Loaded binary rooted tree...\n");
 
@@ -136,14 +127,11 @@ void cmd_info(void)
 
     /* deallocate tree structure */
     rtree_destroy(rtree);
-  }
-  else
-  {
+  } else {
     int tip_count;
 
-    utree_t * utree = utree_parse_newick(opt_treefile, &tip_count);
-    if (utree)
-    {
+    utree_t* utree = utree_parse_newick(opt_treefile, &tip_count);
+    if (utree) {
       if (!opt_quiet)
         printf("Loaded unrooted binary tree...\n");
 
@@ -153,24 +141,19 @@ void cmd_info(void)
       /* deallocate tree structure */
       utree_destroy(utree);
 
-    }
-    else
-    {
-      ntree_t * ntree = ntree_parse_newick(opt_treefile);
-      if (ntree)
-      {
+    } else {
+      ntree_t* ntree = ntree_parse_newick(opt_treefile);
+      if (ntree) {
         if (!opt_quiet)
-          printf ("Loaded n-ary tree\n");
+          printf("Loaded n-ary tree\n");
 
         /* show info */
         ntree_info(ntree);
 
         /* deallocate tree structure */
         ntree_destroy(ntree);
-      }
-      else
+      } else
         fatal("Failed loading tree");
     }
   }
 }
-

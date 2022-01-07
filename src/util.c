@@ -21,13 +21,14 @@
 
 #include "newick-tools.h"
 
-static const char * progress_prompt;
+static const char* progress_prompt;
 static unsigned long progress_next;
 static unsigned long progress_size;
 static unsigned long progress_chunk;
 static const unsigned long progress_granularity = 200;
 
-void fatal(const char * format, ...)
+void
+fatal(const char* format, ...)
 {
   va_list argptr;
   va_start(argptr, format);
@@ -37,41 +38,44 @@ void fatal(const char * format, ...)
   exit(1);
 }
 
-void progress_init(const char * prompt, unsigned long size)
+void
+progress_init(const char* prompt, unsigned long size)
 {
-  if (!opt_quiet)
-  {
+  if (!opt_quiet) {
     progress_prompt = prompt;
     progress_size = size;
-    progress_chunk = size < progress_granularity ?
-      1 : size  / progress_granularity;
+    progress_chunk =
+      size < progress_granularity ? 1 : size / progress_granularity;
     progress_next = 0;
     fprintf(stderr, "%s %.0f%%", prompt, 0.0);
   }
 }
 
-void progress_update(unsigned int progress)
+void
+progress_update(unsigned int progress)
 {
-  if (!opt_quiet)
-  {
-    if (progress >= progress_next)
-    {
-      fprintf(stderr, "  \r%s %.0f%%", progress_prompt,
-              100.0 * progress  / progress_size);
+  if (!opt_quiet) {
+    if (progress >= progress_next) {
+      fprintf(stderr,
+              "  \r%s %.0f%%",
+              progress_prompt,
+              100.0 * progress / progress_size);
       progress_next = progress + progress_chunk;
     }
   }
 }
 
-void progress_done()
+void
+progress_done()
 {
   if (!opt_quiet)
     fprintf(stderr, "  \r%s %.0f%%\n", progress_prompt, 100.0);
 }
 
-void * xcalloc(size_t nmemb, size_t size)
+void*
+xcalloc(size_t nmemb, size_t size)
 {
-  void * t = calloc(nmemb, size);
+  void* t = calloc(nmemb, size);
 
   if (!t)
     fatal("Unable to allocate enough memory.");
@@ -79,11 +83,12 @@ void * xcalloc(size_t nmemb, size_t size)
   return t;
 }
 
-void * xmalloc(size_t size)
+void*
+xmalloc(size_t size)
 {
   const size_t alignment = 16;
-  void * t = NULL;
-  posix_memalign(& t, alignment, size);
+  void* t = NULL;
+  posix_memalign(&t, alignment, size);
 
   if (!t)
     fatal("Unable to allocate enough memory.");
@@ -91,53 +96,65 @@ void * xmalloc(size_t size)
   return t;
 }
 
-void * xrealloc(void *ptr, size_t size)
+void*
+xrealloc(void* ptr, size_t size)
 {
-  void * t = realloc(ptr, size);
+  void* t = realloc(ptr, size);
   if (!t)
     fatal("Unable to allocate enough memory.");
   return t;
 }
 
-char * xstrchrnul(char *s, int c)
+char*
+xstrchrnul(char* s, int c)
 {
-  char * r = strchr(s, c);
+  char* r = strchr(s, c);
 
   if (r)
     return r;
   else
-    return (char *)s + strlen(s);
+    return (char*)s + strlen(s);
 }
 
-char * xstrdup(const char * s)
+char*
+xstrdup(const char* s)
 {
   size_t len = strlen(s);
-  char * p = (char *)xmalloc(len+1);
-  return strcpy(p,s);
+  char* p = (char*)xmalloc(len + 1);
+  return strcpy(p, s);
 }
 
-char * xstrndup(const char * s, size_t len)
+char*
+xstrndup(const char* s, size_t len)
 {
-  char * p = (char *)xmalloc(len+1);
-  strncpy(p,s,len);
+  char* p = (char*)xmalloc(len + 1);
+  strncpy(p, s, len);
   p[len] = 0;
   return p;
 }
 
-long getusec(void)
+long
+getusec(void)
 {
   struct timeval tv;
-  if(gettimeofday(&tv,0) != 0) return 0;
+  if (gettimeofday(&tv, 0) != 0)
+    return 0;
   return tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
-void show_rusage()
+void
+show_rusage()
 {
   struct rusage r_usage;
-  getrusage(RUSAGE_SELF, & r_usage);
-  
-  fprintf(stderr, "Time: %.3fs (user)", r_usage.ru_utime.tv_sec * 1.0 + (double) r_usage.ru_utime.tv_usec * 1.0e-6);
-  fprintf(stderr, " %.3fs (sys)", r_usage.ru_stime.tv_sec * 1.0 + r_usage.ru_stime.tv_usec * 1.0e-6);
+  getrusage(RUSAGE_SELF, &r_usage);
+
+  fprintf(stderr,
+          "Time: %.3fs (user)",
+          r_usage.ru_utime.tv_sec * 1.0 +
+            (double)r_usage.ru_utime.tv_usec * 1.0e-6);
+  fprintf(stderr,
+          " %.3fs (sys)",
+          r_usage.ru_stime.tv_sec * 1.0 + r_usage.ru_stime.tv_usec * 1.0e-6);
 
 #if defined __APPLE__
   /* Mac: ru_maxrss gives the size in bytes */
@@ -148,31 +165,33 @@ void show_rusage()
 #endif
 }
 
-FILE * xopen(const char * filename, const char * mode)
+FILE*
+xopen(const char* filename, const char* mode)
 {
-  FILE * out = fopen(filename, mode);
+  FILE* out = fopen(filename, mode);
   if (!out)
     fatal("Cannot open file %s", opt_outfile);
 
   return out;
 }
 
-void shuffle(void * array, size_t n, size_t size)
+void
+shuffle(void* array, size_t n, size_t size)
 {
   size_t i;
 
-  if (n <= 1) return;
+  if (n <= 1)
+    return;
 
-  char * tmp = (char *)xmalloc(size);
+  char* tmp = (char*)xmalloc(size);
 
-  for (i = 0; i < n; ++i)
-  {
+  for (i = 0; i < n; ++i) {
     size_t rnd = (size_t)rand();
-    size_t j = i + rnd / (RAND_MAX / (n-i) + 1);
+    size_t j = i + rnd / (RAND_MAX / (n - i) + 1);
 
-    memcpy(tmp, array + j*size, size);
-    memcpy(array + j*size, array + i*size, size);
-    memcpy(array + i*size, tmp, size);
+    memcpy(tmp, array + j * size, size);
+    memcpy(array + j * size, array + i * size, size);
+    memcpy(array + i * size, tmp, size);
   }
 
   free(tmp);

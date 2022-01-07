@@ -21,25 +21,33 @@
 
 #include "newick-tools.h"
 
-static int cb_desc(const void * va, const void * vb)
+static int
+cb_desc(const void* va, const void* vb)
 {
-  double a = *(double *)va;
-  double b = *(double *)vb;
-  
-  if (a - b > 0) return 1;
-  else if (a - b < 0) return -1;
+  double a = *(double*)va;
+  double b = *(double*)vb;
+
+  if (a - b > 0)
+    return 1;
+  else if (a - b < 0)
+    return -1;
 
   return 0;
 }
 
-void stats(double * values, int count, 
-           double * min, double * max, 
-           double * mean, double * median, 
-           double * var, double * stdev)
+void
+stats(double* values,
+      int count,
+      double* min,
+      double* max,
+      double* mean,
+      double* median,
+      double* var,
+      double* stdev)
 {
   int i;
   double sum = 0;
-  
+
   *min = 0;
   *max = 0;
   *mean = 0;
@@ -50,32 +58,30 @@ void stats(double * values, int count,
   if (!count)
     return;
 
-  qsort((void *)values, count, sizeof(double), cb_desc);
+  qsort((void*)values, count, sizeof(double), cb_desc);
 
   /* sum, min, max */
-  for (i=0; i<count; ++i)
-    sum += values[i]; 
+  for (i = 0; i < count; ++i)
+    sum += values[i];
 
   *min = values[0];
-  *max = values[count-1];
+  *max = values[count - 1];
 
   /* mean */
-  *mean = sum/count;
+  *mean = sum / count;
 
   /* median */
   if (count % 2)
-    *median = values[count/2];
+    *median = values[count / 2];
   else
-    *median = (values[count/2] + values[count/2+1])/2;
+    *median = (values[count / 2] + values[count / 2 + 1]) / 2;
 
   /* variance */
-  for (i=0; i<count; ++i)
-  {
-    *var += (*mean - values[i])*(*mean - values[i]);
+  for (i = 0; i < count; ++i) {
+    *var += (*mean - values[i]) * (*mean - values[i]);
   }
   *var /= count;
 
   /* standard deviation */
   *stdev = sqrt(*var);
-
 }

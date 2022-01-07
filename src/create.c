@@ -21,58 +21,56 @@
 
 #include "newick-tools.h"
 
-void cmd_randomtree_binary(void)
+void
+cmd_randomtree_binary(void)
 {
-  FILE * out;
+  FILE* out;
   int i;
-  char * label;
+  char* label;
 
   /* create array of nodes */
-  rtree_t ** nodes = (rtree_t **)xmalloc(opt_randomtree_tips *
-                                         sizeof(rtree_t *));
+  rtree_t** nodes = (rtree_t**)xmalloc(opt_randomtree_tips * sizeof(rtree_t*));
 
   /* allocate tip nodes */
-  for (i = 0; i < opt_randomtree_tips; ++i)
-  {
-    nodes[i] = (rtree_t *)xmalloc(sizeof(rtree_t));
+  for (i = 0; i < opt_randomtree_tips; ++i) {
+    nodes[i] = (rtree_t*)xmalloc(sizeof(rtree_t));
     asprintf(&label, "%d", i);
     nodes[i]->label = label;
     nodes[i]->leaves = 1;
     nodes[i]->left = nodes[i]->right = NULL;
-    nodes[i]->length = rnd_uniform(opt_randomtree_minbranch,
-                                   opt_randomtree_maxbranch);
+    nodes[i]->length =
+      rnd_uniform(opt_randomtree_minbranch, opt_randomtree_maxbranch);
     nodes[i]->data = NULL;
   }
 
   int count = opt_randomtree_tips;
 
-  while (count != 1)
-  {
+  while (count != 1) {
     /* randomly select first node */
     i = random() % count;
-    rtree_t * a = nodes[i];
+    rtree_t* a = nodes[i];
 
     /* in case we did not select the last node in the list, move the last
        node to the position of the node we selected */
-    if (i != count-1)
-      nodes[i] = nodes[count-1];
+    if (i != count - 1)
+      nodes[i] = nodes[count - 1];
 
     /* decrease number of nodes in list */
     --count;
 
     /* randomly select second node */
     i = random() % count;
-    rtree_t * b = nodes[i];
+    rtree_t* b = nodes[i];
 
     /* in case we did not select the last node in the list, move the last
        node to the position of the node we selected */
-    if (i != count-1)
-      nodes[i] = nodes[count-1];
+    if (i != count - 1)
+      nodes[i] = nodes[count - 1];
 
     /* decrease number of nodes in list */
     --count;
 
-    nodes[count] = (rtree_t *)xmalloc(sizeof(rtree_t));
+    nodes[count] = (rtree_t*)xmalloc(sizeof(rtree_t));
     nodes[count]->parent = NULL;
     nodes[count]->left = a;
     nodes[count]->right = b;
@@ -83,20 +81,18 @@ void cmd_randomtree_binary(void)
 
     ++count;
 
-    //asprintf(&label, "%ld", 2*opt_randomtree_tips - count - 1); 
-    nodes[count-1]->label = NULL;
-    nodes[count-1]->length = rnd_uniform(opt_randomtree_minbranch,
-                                         opt_randomtree_maxbranch);
+    // asprintf(&label, "%ld", 2*opt_randomtree_tips - count - 1);
+    nodes[count - 1]->label = NULL;
+    nodes[count - 1]->length =
+      rnd_uniform(opt_randomtree_minbranch, opt_randomtree_maxbranch);
   }
 
-  char * newick = rtree_export_newick(nodes[0]);
+  char* newick = rtree_export_newick(nodes[0]);
 
   /* attempt to open output file */
-  out = opt_outfile ?
-          xopen(opt_outfile,"w") : stdout;
+  out = opt_outfile ? xopen(opt_outfile, "w") : stdout;
 
-  
-  fprintf(out, "%s\n", newick); 
+  fprintf(out, "%s\n", newick);
 
   if (opt_outfile)
     fclose(out);
@@ -104,7 +100,6 @@ void cmd_randomtree_binary(void)
   rtree_destroy(nodes[0]);
   free(nodes);
   free(newick);
-
 }
 
 #if 0

@@ -21,33 +21,29 @@
 
 #include "newick-tools.h"
 
-static utree_t ** path1 = NULL;
-static utree_t ** path2 = NULL;
+static utree_t** path1 = NULL;
+static utree_t** path2 = NULL;
 static int path1_len = 0;
 static int path2_len = 0;
 
 /* fill path with nodes of the path tip to root */
-static void fill_path(utree_t ** path, int * path_len, utree_t * tip)
+static void
+fill_path(utree_t** path, int* path_len, utree_t* tip)
 {
   int i = 0;
-  
+
   assert(!tip->next);
 
   path[i++] = tip;
   tip = tip->back;
   path[i++] = tip;
 
-  while (1)
-  {
-    if (tip->next->back->height > tip->height)
-    {
+  while (1) {
+    if (tip->next->back->height > tip->height) {
       tip = tip->next->back;
-    }
-    else if (tip->next->next->back->height > tip->height)
-    {
+    } else if (tip->next->next->back->height > tip->height) {
       tip = tip->next->next->back;
-    }
-    else
+    } else
       break;
 
     path[i++] = tip;
@@ -56,24 +52,25 @@ static void fill_path(utree_t ** path, int * path_len, utree_t * tip)
   *path_len = i;
 }
 
-void lca_init(utree_t * root)
+void
+lca_init(utree_t* root)
 {
   /* allocate two paths of maximal height */
-  path1 = (utree_t **)xmalloc((root->height+1) * sizeof(utree_t *));
-  path2 = (utree_t **)xmalloc((root->height+1) * sizeof(utree_t *));
+  path1 = (utree_t**)xmalloc((root->height + 1) * sizeof(utree_t*));
+  path2 = (utree_t**)xmalloc((root->height + 1) * sizeof(utree_t*));
 }
 
-utree_t * lca_compute(utree_t * tip1, utree_t * tip2)
+utree_t*
+lca_compute(utree_t* tip1, utree_t* tip2)
 {
-  utree_t * outgroup;
+  utree_t* outgroup;
 
   fill_path(path1, &path1_len, tip1);
   fill_path(path2, &path2_len, tip2);
 
   assert(path1_len && path2_len);
 
-  while(path1[--path1_len] == path2[--path2_len])
-  {
+  while (path1[--path1_len] == path2[--path2_len]) {
     assert(path1_len && path2_len);
   }
 
@@ -88,7 +85,8 @@ utree_t * lca_compute(utree_t * tip1, utree_t * tip2)
   return outgroup;
 }
 
-void lca_destroy()
+void
+lca_destroy()
 {
   free(path1);
   free(path2);

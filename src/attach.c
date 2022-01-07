@@ -21,35 +21,33 @@
 
 #include "newick-tools.h"
 
-void cmd_attach_tree(void)
+void
+cmd_attach_tree(void)
 {
-  FILE * out;
+  FILE* out;
   unsigned int i;
-  /* make sure to do all conversions */ 
+  /* make sure to do all conversions */
 
-  
-  rtree_t * rtree = rtree_parse_newick(opt_treefile);
+  rtree_t* rtree = rtree_parse_newick(opt_treefile);
 
   if (!rtree)
     fatal("Currently only rooted trees are supported");
 
-  rtree_t * attachtree = rtree_parse_newick(opt_attach_filename);
+  rtree_t* attachtree = rtree_parse_newick(opt_attach_filename);
   if (!attachtree)
     fatal("Currently only rooted trees are supported");
 
-
-  rtree_t ** tip_nodes = (rtree_t **)xmalloc(rtree->leaves *
-                                             sizeof(rtree_t *));
+  rtree_t** tip_nodes = (rtree_t**)xmalloc(rtree->leaves * sizeof(rtree_t*));
 
   rtree_query_tipnodes(rtree, tip_nodes);
 
-  for (i=0; i < rtree->leaves; ++i)
-    if (!strcmp(tip_nodes[i]->label,opt_attach_at))
+  for (i = 0; i < rtree->leaves; ++i)
+    if (!strcmp(tip_nodes[i]->label, opt_attach_at))
       break;
 
   if (i == rtree->leaves)
     fatal("Attach at tip not found");
-  
+
   free(tip_nodes[i]->label);
   tip_nodes[i]->label = NULL;
 
@@ -58,30 +56,26 @@ void cmd_attach_tree(void)
   else
     tip_nodes[i]->parent->right = attachtree;
 
-  attachtree->parent  = tip_nodes[i]->parent;
+  attachtree->parent = tip_nodes[i]->parent;
   attachtree->length += tip_nodes[i]->length;
 
   rtree_destroy(tip_nodes[i]);
 
   free(tip_nodes);
 
-  
   rtree_reset_leaves(rtree);
 
   /* prepare for output */
-  char * newick = rtree_export_newick(rtree);
+  char* newick = rtree_export_newick(rtree);
 
   /* attempt to open output file */
-  out = opt_outfile ?
-          xopen(opt_outfile,"w") : stdout;
+  out = opt_outfile ? xopen(opt_outfile, "w") : stdout;
 
-  
-  fprintf(out, "%s\n", newick); 
+  fprintf(out, "%s\n", newick);
 
   if (opt_outfile)
     fclose(out);
 
   rtree_destroy(rtree);
   free(newick);
-  
 }

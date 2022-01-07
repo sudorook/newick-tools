@@ -21,11 +21,12 @@
 
 #include "newick-tools.h"
 
-unsigned long arch_get_memused()
+unsigned long
+arch_get_memused()
 {
   struct rusage r_usage;
-  getrusage(RUSAGE_SELF, & r_usage);
-  
+  getrusage(RUSAGE_SELF, &r_usage);
+
 #if defined __APPLE__
   /* Mac: ru_maxrss gives the size in bytes */
   return r_usage.ru_maxrss;
@@ -35,7 +36,8 @@ unsigned long arch_get_memused()
 #endif
 }
 
-unsigned long arch_get_memtotal()
+unsigned long
+arch_get_memtotal()
 {
 #if defined(_SC_PHYS_PAGES) && defined(_SC_PAGESIZE)
 
@@ -57,10 +59,10 @@ unsigned long arch_get_memtotal()
 
 #elif defined(__APPLE__)
 
-  int mib [] = { CTL_HW, HW_MEMSIZE };
+  int mib[] = { CTL_HW, HW_MEMSIZE };
   int64_t ram = 0;
   size_t length = sizeof(ram);
-  if(-1 == sysctl(mib, 2, &ram, &length, NULL, 0))
+  if (-1 == sysctl(mib, 2, &ram, &length, NULL, 0))
     fatal("Cannot determine amount of RAM");
   return ram;
 

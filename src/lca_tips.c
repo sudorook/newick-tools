@@ -21,10 +21,10 @@
 
 #include "newick-tools.h"
 
-void lca_tips(rtree_t * root, rtree_t ** tip1, rtree_t ** tip2)
+void
+lca_tips(rtree_t* root, rtree_t** tip1, rtree_t** tip2)
 {
-  if (!root->left)
-  {
+  if (!root->left) {
     *tip1 = root;
     *tip2 = NULL;
     return;
