@@ -44,7 +44,7 @@ OBJS=$(SRCDIR)/arch.o \
      $(SRCDIR)/create.o \
      $(SRCDIR)/dist.o \
      $(SRCDIR)/info.o \
-     $(SRCDIR)/newick-tools.o \
+     $(SRCDIR)/newick_tools.o \
      $(SRCDIR)/ntree.o \
      $(SRCDIR)/labels.o \
      $(SRCDIR)/lca_utree.o \

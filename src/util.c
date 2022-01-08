@@ -19,7 +19,7 @@
     Schloss-Wolfsbrunnenweg 35, D-69118 Heidelberg, Germany
 */
 
-#include "newick-tools.h"
+#include "newick_tools.h"
 
 static const char* progress_prompt;
 static unsigned long progress_next;

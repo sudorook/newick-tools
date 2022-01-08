@@ -184,7 +184,7 @@ void show_rusage(void);
 FILE * xopen(const char * filename, const char * mode);
 void shuffle(void * array, size_t n, size_t size);
 
-/* functions in newick-tools.c */
+/* functions in newick_tools.c */
 
 void args_init(int argc, char ** argv);
 void cmd_help(void);

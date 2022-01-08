@@ -19,7 +19,7 @@
     Schloss-Wolfsbrunnenweg 35, D-69118 Heidelberg, Germany
 */
 
-#include "newick-tools.h"
+#include "newick_tools.h"
 
 void
 lca_tips(rtree_t* root, rtree_t** tip1, rtree_t** tip2)

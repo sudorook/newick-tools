@@ -20,7 +20,7 @@
 */
 %{
 #include "parse_ntree.h"
-#include "newick-tools.h"
+#include "newick_tools.h"
 
 static size_t string_length = 0;
 

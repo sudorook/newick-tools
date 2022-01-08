@@ -20,7 +20,7 @@
 */
 
 %{
-#include "newick-tools.h"
+#include "newick_tools.h"
 
 extern int ntree_lex();
 extern FILE * ntree_in;
