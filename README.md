@@ -1,4 +1,4 @@
-# newick-tools: a novel software for simulating and processing phylogenetic trees
+# newick-tools
 
 [![License](https://img.shields.io/badge/license-AGPL-blue.svg)](http://www.gnu.org/licenses/agpl-3.0.en.html)
 <!-- [![Build Status](https://travis-ci.org/xflouris/newick-tools.svg?branch=master)](https://magnum.travis-ci.com/xflouris/newick-tools) -->
@@ -88,12 +88,6 @@ Input and output options:
 * `--tree_file`
 * `--output_file`
 
-## 
-
-## License and third party licenses
-
-The code is currently licensed under the [GNU Affero General Public License version 3](http://www.gnu.org/licenses/agpl-3.0.en.html).
-
 ## Code
 
     File           | Description
@@ -116,15 +110,3 @@ The code is currently licensed under the [GNU Affero General Public License vers
 **svg.c**          | SVG output routines.
 **prune.c**        | Methods for pruning taxa and inducing subtrees.
 **info.c**         | Functions for showing various tree-related  information.
-
-## Bugs
-
-The source code in the master branch is thoroughly tested before commits.
-However, mistakes may happen. All bug reports are highly appreciated.
-
-
-## The team
-
-* Paschalia Kapli
-* Sarah Lutteropp
-* Tom&aacute;&scaron; Flouri
