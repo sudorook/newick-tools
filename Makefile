@@ -38,7 +38,13 @@ SRCDIR=src
 
 all: $(PROG)
 
-OBJS=$(SRCDIR)/arch.o \
+OBJS=$(SRCDIR)/parse_ntree.o \
+     $(SRCDIR)/parse_rtree.o \
+     $(SRCDIR)/parse_utree.o \
+     $(SRCDIR)/lex_ntree.o \
+     $(SRCDIR)/lex_rtree.o \
+     $(SRCDIR)/lex_utree.o \
+     $(SRCDIR)/arch.o \
      $(SRCDIR)/attach.o \
      $(SRCDIR)/bd.o \
      $(SRCDIR)/create.o \
@@ -49,12 +55,6 @@ OBJS=$(SRCDIR)/arch.o \
      $(SRCDIR)/labels.o \
      $(SRCDIR)/lca_utree.o \
      $(SRCDIR)/lca_tips.o \
-     $(SRCDIR)/lex_ntree.o \
-     $(SRCDIR)/lex_rtree.o \
-     $(SRCDIR)/lex_utree.o \
-     $(SRCDIR)/parse_ntree.o \
-     $(SRCDIR)/parse_rtree.o \
-     $(SRCDIR)/parse_utree.o \
      $(SRCDIR)/prune.o \
      $(SRCDIR)/rtree.o \
      $(SRCDIR)/subtree.o \
