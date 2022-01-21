@@ -17,22 +17,14 @@
 # Heidelberg Institute for Theoretical Studies,
 # Schloss-Wolfsbrunnenweg 35, D-69118 Heidelberg, Germany
 
-# Profiling
-#PROFILING=-g -pg
-PROFILING=-g
-
-# Compiler warnings
-WARN=-Wall -Wsign-compare
-
 CC = gcc
-CFLAGS = -g $(WARN) -D_GNU_SOURCE
-LINKFLAGS=$(PROFILING)
-LIBS=-lm
+CFLAGS = -g -Wall -D_GNU_SOURCE
+LIBS = -lm
 
 BISON = bison
 FLEX = flex
 
-PROG=newick-tools
+PROG = newick-tools
 
 SRCDIR=src
 
@@ -72,7 +64,7 @@ EXTRA=$(SRCDIR)/lex_ntree.h \
       $(SRCDIR)/parse_utree.h \
 
 $(PROG): $(OBJS)
-	$(CC) -Wall $(LINKFLAGS) $+ -o $@ $(LIBS)
+	$(CC) $(CFLAGS) $+ -o $@ $(LIBS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
